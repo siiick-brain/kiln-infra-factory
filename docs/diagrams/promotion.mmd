@@ -1,0 +1,10 @@
+flowchart LR
+  dev["dev pin"] -->|promote.ps1 -From dev -To stage| gates{"gates: fmt, validate,<br/>tflint, checkov, conftest,<br/>terraform test, emulator plan"}
+  gates -->|all pass| stage["stage pin edited"]
+  gates -->|any fail| stop["pin unchanged"]
+  stage -->|author commits| s2["stage runs pin"]
+  s2 -->|promote.ps1 -From stage -To prod| check{"stage pin equals<br/>source pin?"}
+  check -->|no| refuse["refused"]
+  check -->|yes| gates2{"same gates"}
+  gates2 --> prod["prod pin edited, author commits"]
+  prod -.->|git revert| rollback["rollback"]

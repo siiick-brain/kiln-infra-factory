@@ -1,0 +1,12 @@
+flowchart LR
+  Host[Host project] --> VPC[Shared VPC]
+  Service[Service project] --> Attach[Shared VPC attachment]
+  Attach --> Subnet[Service subnet]
+  Subnet --> Router[Cloud Router]
+  Router --> NAT[Cloud NAT]
+  VPC --> Ingress[Tagged workload ingress deny]
+  VPC --> Egress[Tagged workload egress deny]
+  GKE[GKE node pool] --> Subnet
+  GKE --> Tag[kiln-workload tag]
+  Tag --> Ingress
+  Tag --> Egress

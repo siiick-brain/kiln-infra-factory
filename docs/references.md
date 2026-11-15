@@ -21,6 +21,11 @@ Upstream release tags, repository licence metadata and last-push timestamps were
 | terraform-docs | 0.24.0 | MIT | [README](https://github.com/terraform-docs/terraform-docs) and [LICENSE](https://github.com/terraform-docs/terraform-docs/blob/master/LICENSE) | 2026-09-02 08:09 UTC |
 | tpm2-tools | 5.7-1 (Debian Trixie package) | BSD-3-Clause SPDX header in source files; no root licence file found | [README](https://github.com/tpm2-software/tpm2-tools) and [Debian package](https://packages.debian.org/trixie/tpm2-tools) | Package candidate checked 2026-10-30 |
 | Moto server | 5.2.5 | Apache-2.0 | [README](https://github.com/getmoto/moto) and [LICENSE](https://github.com/getmoto/moto/blob/master/LICENSE) | 2026-10-30 05:48 UTC |
+| kubeconform | 0.6.7 | Apache-2.0 | [README](https://github.com/yannh/kubeconform) and [LICENSE](https://github.com/yannh/kubeconform/blob/master/LICENSE) | 2026-06-13 push, checked 2026-11-15 |
+| kind | 0.29.0 | Apache-2.0 | [README](https://github.com/kubernetes-sigs/kind) and [LICENSE](https://github.com/kubernetes-sigs/kind/blob/main/LICENSE) | 2026-11-13 push, checked 2026-11-15 |
+| kubectl | 1.33.1 | Apache-2.0 | [Kubernetes release binaries](https://kubernetes.io/releases/download/) | checked 2026-11-15 |
+| swtpm | 0.7.1-1.5 (Debian Trixie package) | BSD-3-Clause | [README](https://github.com/stefanberger/swtpm) and [LICENSE](https://github.com/stefanberger/swtpm/blob/master/LICENSE) | 2026-11-02 push, checked 2026-11-15 |
+| OpenSSL | 3.5.7 (Debian package in the toolbox) | Apache-2.0 | [README](https://github.com/openssl/openssl) and [LICENSE](https://github.com/openssl/openssl/blob/master/LICENSE.txt) | 2026-11-14 push, checked 2026-11-15 |
 
 ## Cloud service documentation
 
@@ -34,10 +39,25 @@ The pytest-testinfra README warns that the project is not actively maintained. T
 | AzureRM | 5.12.0 | [Terraform Registry](https://registry.terraform.io/providers/hashicorp/azurerm/5.12.0) |
 | Google | 8.9.0 | [Terraform Registry](https://registry.terraform.io/providers/hashicorp/google/8.9.0) |
 
+## Reference projects
+
+Each project was read for its README and licence before use. No text or code was copied.
+
+| Project | Licence | Used for | Status |
+|---|---|---|---|
+| [MicrosoftDocs/cloud-adoption-framework](https://github.com/MicrosoftDocs/cloud-adoption-framework) | CC-BY-4.0 | Design area names in the Azure landing zone map | Used |
+| [kelseyhightower/kubernetes-the-hard-way](https://github.com/kelseyhightower/kubernetes-the-hard-way) | Apache-2.0 | The list of component certificates a cluster needs | Used |
+| [livialima/linuxupskillchallenge](https://github.com/livialima/linuxupskillchallenge) | CC-BY-4.0 | Topic outline for the Linux administration exercises | Used |
+| [Idnan/bash-guide](https://github.com/Idnan/bash-guide) | MIT | General shell reference while writing the bash style rules | Used as reference only |
+| [donnemartin/system-design-primer](https://github.com/donnemartin/system-design-primer) | CC-BY-4.0 (licence file text) | Background reading on availability trade-offs | Used as reference only |
+| [ChiefGyk3D/Clouds-Against-Humanity](https://github.com/ChiefGyk3D/Clouds-Against-Humanity) | Apache-2.0 | Zero trust principle list mapped to controls | Used |
+| [floci-io/floci](https://github.com/floci-io/floci) | MIT | Emulator candidate | Evaluated, not used. See below |
+
 ## Evaluated but not used
 
 | Project | Decision | Evidence |
 |---|---|---|
+| floci | Not used. Its README states it needs no account or auth token and it serves S3, SQS, Lambda, IAM and STS on one port. It was evaluated on 2026-11-15, after every emulator test was built and verified on Moto. Switching would repeat that work for no gain in coverage. | [README](https://github.com/floci-io/floci) checked 2026-11-15 |
 | LocalStack | Not used. Its current installation path requires an Auth Token and browser login. | [Installation and authentication requirements](https://docs.localstack.cloud/aws/getting-started/installation/) |
 
 ## Container image references
@@ -45,3 +65,6 @@ The pytest-testinfra README warns that the project is not actively maintained. T
 - Toolbox and Moto base: [`python:3.12-slim-trixie@sha256:1148dbb014615300fa7e713b2f94f550c0d1c69780c0805f84f093ceee34dd0b`](https://hub.docker.com/layers/library/python/3.12-slim-trixie/images/sha256-1148dbb014615300fa7e713b2f94f550c0d1c69780c0805f84f093ceee34dd0b)
 - swtpm base: [`debian:trixie-slim@sha256:1e1a22175fbf1b32157ddaf0219e1db4e5401fab2b94ed285add64d18587cd2d`](https://hub.docker.com/layers/library/debian/trixie-slim/images/sha256-1e1a22175fbf1b32157ddaf0219e1db4e5401fab2b94ed285add64d18587cd2d)
 - Rocky Linux targets: [`quay.io/rockylinux/rockylinux:9.8@sha256:8101994123cf3d0a8fee517bee7f39e555c7d92bd2d9eb3303cc988a0eeed00f`](https://quay.io/repository/rockylinux/rockylinux?tab=tags)
+- kind-runner base: [`docker:27.5.1-cli@sha256:851f91d241214e7c6db86513b270d58776379aacc5eb9c4a87e5b47115e3065c`](https://hub.docker.com/_/docker)
+- kind node: [`kindest/node:v1.33.1@sha256:050072256b9a903bd914c0b2866828150cb229cea0efe5892e2b644d5dd3b34f`](https://hub.docker.com/r/kindest/node)
+- Sample workload: [`nginxinc/nginx-unprivileged:1.27.5-alpine@sha256:65e3e85dbaed8ba248841d9d58a899b6197106c23cb0ff1a132b7bfe0547e4c0`](https://hub.docker.com/r/nginxinc/nginx-unprivileged)

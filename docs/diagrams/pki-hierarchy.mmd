@@ -1,0 +1,8 @@
+flowchart TD
+  R["Kiln Demo Root CA<br/>ECDSA P-384, 10 years<br/>offline ceremony volume"] -->|signs, pathlen 0| I["Kiln Demo Intermediate CA<br/>ECDSA P-384, 5 years"]
+  I --> S["server_cert<br/>serverAuth"]
+  I --> C["client_cert<br/>clientAuth"]
+  I --> O["ocsp_cert<br/>OCSPSigning, noCheck"]
+  I --> K["Kubernetes profiles<br/>API server, kubelet, etcd, clients"]
+  I --> CRL["Intermediate CRL<br/>7 days"]
+  R --> RCRL["Root CRL<br/>180 days"]

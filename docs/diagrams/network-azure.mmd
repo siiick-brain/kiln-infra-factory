@@ -1,0 +1,6 @@
+flowchart LR
+  Hub[Hub VNet] <-->|VNet peering| Spoke[Spoke VNet]
+  Hub --> HubNSG[Hub NSG]
+  Spoke --> SpokeNSG[Spoke NSG]
+  Spoke --> NAT[Azure NAT Gateway]
+  NAT --> PublicIP[Standard public IP]

@@ -1,0 +1,10 @@
+flowchart TD
+  G["Attacker reads secrets from Terraform state"] --> A["Read the remote state object"]
+  G --> B["Read a local copy"]
+  G --> C["Read plan output"]
+  A --> A1["Over-broad IAM on the bucket<br/>control: least privilege, no wildcards"]
+  A --> A2["Public bucket<br/>control: public access block, policy test"]
+  A --> A3["Stolen CI token<br/>control: short-lived OIDC, repo and ref condition"]
+  B --> B1["terraform.tfstate on a workstation<br/>control: .gitignore, remote backend"]
+  B --> B2["State committed to Git<br/>control: gitleaks, .gitignore"]
+  C --> C1["Plan printed in CI logs<br/>control: sensitive outputs, no secrets as variables where avoidable"]
