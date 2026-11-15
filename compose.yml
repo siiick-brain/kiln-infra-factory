@@ -1,0 +1,52 @@
+name: kiln-infra-factory
+
+services:
+  toolbox:
+    image: kiln-infra-toolbox:2026.11.15
+    build:
+      context: docker/toolbox
+    working_dir: /workspace
+    environment:
+      ANSIBLE_CONFIG: /workspace/ansible/ansible.cfg
+    volumes:
+      - .:/workspace
+      - type: bind
+        source: ${ANSIBLE_KEY_DIR:-.}
+        target: /run/ansible-keys
+        read_only: true
+
+  emulator:
+    image: kiln-infra-moto:5.2.5
+    build:
+      context: .
+      dockerfile: docker/emulator/Dockerfile
+    environment:
+      MOTO_DOCKER_NETWORK_NAME: kiln-infra-factory_default
+      MOTO_PORT: "5000"
+    ports:
+      - "127.0.0.1:5000:5000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  swtpm:
+    image: kiln-infra-swtpm:0.10.2
+    build:
+      context: .
+      dockerfile: docker/swtpm/Dockerfile
+    volumes:
+      - swtpm-state:/var/lib/swtpm
+
+  rocky-target-1:
+    build:
+      context: docker/rocky-target
+    environment:
+      ANSIBLE_AUTHORIZED_KEY: ${ANSIBLE_PUBLIC_KEY:-}
+
+  rocky-target-2:
+    build:
+      context: docker/rocky-target
+    environment:
+      ANSIBLE_AUTHORIZED_KEY: ${ANSIBLE_PUBLIC_KEY:-}
+
+volumes:
+  swtpm-state:
