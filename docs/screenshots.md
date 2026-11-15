@@ -1,6 +1,6 @@
 # Screenshots
 
-Each image is rendered by `scripts/terminal_shot.py` from the real output and exit code of the command shown at its top. Text is not edited except redaction of emails, tokens, account IDs and URLs, and the footer states how many values were redacted. "Recorded run" images show lines from a log in `artifacts/logs` written by the named run. `scripts/capture-all.ps1` renders them all again.
+Each image is rendered by `scripts/terminal_shot.py` from the real output and exit code of the command shown at its top. Text is not edited except redaction of emails, tokens, account IDs and URLs. The footer states how many values were redacted. "Recorded run" images show lines from a log in `artifacts/logs` written by the named run. `scripts/capture-all.ps1` renders them all again.
 
 Public GitHub page captures (CI, drift workflow, README and contributors) are Not verified until the repository is public. The architecture explainer video is Not verified.
 
