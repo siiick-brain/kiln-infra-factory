@@ -1,0 +1,12 @@
+# Default gitleaks rules plus path exclusions for generated, gitignored output.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Generated local output that is gitignored and never committed"
+paths = [
+  '''graphify-out/''',
+  '''\.terraform/''',
+  '''\.terragrunt-cache/''',
+  '''artifacts/logs/''',
+]

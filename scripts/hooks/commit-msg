@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  printf 'Usage: %s <commit-message-file>\n' "${0##*/}" >&2
+}
+
+if [[ $# -ne 1 || ! -f $1 ]]; then
+  usage
+  exit 2
+fi
+
+message_file=$1
+repo_root=$(git rev-parse --show-toplevel)
+allowed_file="$repo_root/.github/allowed-author"
+
+if [[ ! -f $allowed_file ]]; then
+  printf 'Commit rejected: %s is missing.\n' "$allowed_file" >&2
+  exit 1
+fi
+
+allowed_email=$(<"$allowed_file")
+author_ident=$(git var GIT_AUTHOR_IDENT)
+author_email=${author_ident##*<}
+author_email=${author_email%>*}
+title=$(head -n 1 "$message_file")
+
+if grep -Eiq '^[[:space:]]*Co-authored-by:' "$message_file"; then
+  printf 'Commit rejected: Co-authored-by trailers are not allowed.\n' >&2
+  exit 1
+fi
+
+if [[ $author_email != "$allowed_email" ]]; then
+  printf 'Commit rejected: author email does not match %s.\n' "$allowed_file" >&2
+  exit 1
+fi
+
+if [[ ! $title =~ ^(feat|fix|docs|test|ci|chore|refactor|perf|build|security)(\([a-z0-9-]+\))?:\ .+ ]]; then
+  printf 'Commit rejected: title must match the required conventional format.\n' >&2
+  exit 1
+fi
