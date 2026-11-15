@@ -1,0 +1,8 @@
+# Target: rocky-target-1. Date: 2026-11-15
+$ ls /etc/yum.repos.d; rpm -qa | wc -l
+rocky-addons.repo
+rocky-devel.repo
+rocky-extras.repo
+rocky-security.repo
+rocky.repo
+170

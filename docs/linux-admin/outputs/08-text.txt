@@ -1,0 +1,9 @@
+# Target: rocky-target-1. Date: 2026-11-15
+$ grep -rhE '^(PermitRootLogin|PasswordAuthentication)' /etc/ssh/sshd_config.d/; awk -F: '$7 !~ /nologin|false/ {print $1, $7}' /etc/passwd
+PermitRootLogin no
+PasswordAuthentication no
+root /bin/bash
+sync /bin/sync
+shutdown /sbin/shutdown
+halt /sbin/halt
+ansible /bin/bash

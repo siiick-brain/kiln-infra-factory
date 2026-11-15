@@ -1,0 +1,5 @@
+# Target: rocky-target-1. Date: 2026-11-15
+$ for f in /etc/ssh/sshd_config /etc/dnf/automatic.conf /etc/sysctl.d/99-kiln-hardening.conf; do if [[ -f $f ]]; then echo "present $f"; else echo "missing $f"; fi; done
+present /etc/ssh/sshd_config
+present /etc/dnf/automatic.conf
+present /etc/sysctl.d/99-kiln-hardening.conf

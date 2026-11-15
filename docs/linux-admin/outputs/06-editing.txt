@@ -1,0 +1,9 @@
+# Target: rocky-target-1. Date: 2026-11-15
+$ command -v vi vim nano || echo 'no interactive editor installed'; sed -n '1,6p' /etc/ssh/sshd_config.d/*.conf
+/usr/bin/vi
+PermitRootLogin no
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PubkeyAuthentication yes
+AllowUsers ansible
+X11Forwarding no

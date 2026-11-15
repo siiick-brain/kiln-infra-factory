@@ -1,0 +1,13 @@
+# Target: rocky-target-1. Date: 2026-11-15
+$ rsyslogd -N1 2>&1 | tail -2; ls /etc/rsyslog.d; ls /var/log | head -8
+rsyslogd: version 8.2510.0-2.el9_8.2, config validation run (level 1), master config /etc/rsyslog.conf
+rsyslogd: End of config validation run. Bye.
+50-kiln.conf
+README
+btmp
+dnf.librepo.log
+dnf.log
+dnf.rpm.log
+hawkey.log
+lastlog
+maillog

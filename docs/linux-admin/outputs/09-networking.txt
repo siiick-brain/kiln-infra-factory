@@ -1,0 +1,10 @@
+# Target: rocky-target-1. Date: 2026-11-15
+$ getent hosts rocky-target-2; awk 'NR>1 {print $2}' /proc/net/tcp | head -5; cat /etc/resolv.conf | grep -v '^#' | head -3
+172.20.0.4      rocky-target-2
+0B00007F:9FA5
+00000000:20FB
+00000000:0016
+00000000:0050
+
+nameserver 127.0.0.11
+options ndots:0

@@ -7,6 +7,7 @@
       KbdInteractiveAuthentication no
       PubkeyAuthentication yes
       AllowUsers ansible
+      X11Forwarding no
     owner: root
     group: root
     mode: "0600"
@@ -28,6 +29,7 @@
       - "'passwordauthentication no' in ssh_hardening_effective_config.stdout"
       - "'pubkeyauthentication yes' in ssh_hardening_effective_config.stdout"
       - "'allowusers ansible' in ssh_hardening_effective_config.stdout"
+      - "'x11forwarding no' in ssh_hardening_effective_config.stdout"
     fail_msg: Effective sshd configuration does not match the hardening policy.
 
 - name: Apply SSH configuration changes

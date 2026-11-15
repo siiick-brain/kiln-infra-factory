@@ -1,0 +1,13 @@
+# Target: rocky-target-1. Date: 2026-11-15
+$ ps -eo pid,user,comm | head -8; sshd -T | grep -E '^(permitrootlogin|passwordauthentication|x11forwarding) '
+    PID USER     COMMAND
+      1 root     sshd
+   2667 root     nginx
+   3345 nginx    nginx
+   3346 nginx    nginx
+   3347 nginx    nginx
+   3348 nginx    nginx
+   3349 nginx    nginx
+permitrootlogin no
+passwordauthentication no
+x11forwarding no
