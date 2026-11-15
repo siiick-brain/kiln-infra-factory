@@ -1,0 +1,11 @@
+- name: Configure Rocky Linux targets
+  hosts: rocky_targets
+  become: true
+  roles:
+    - base
+    - users_sudo
+    - ssh_hardening
+    - sysctl_hardening
+    - logging
+    - cert_deploy
+    - updates

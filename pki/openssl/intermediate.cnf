@@ -1,0 +1,103 @@
+# Intermediate CA configuration. Issues leaf certificates, signs CRLs and the OCSP responder certificate.
+# Scripts export SAN before every call so the profile sections can read it.
+[ ca ]
+default_ca = intermediate_ca
+
+[ intermediate_ca ]
+dir               = $ENV::PKI_INT_DIR
+database          = $dir/index.txt
+new_certs_dir     = $dir/newcerts
+certificate       = $dir/intermediate.crt
+private_key       = $dir/private/intermediate.key
+serial            = $dir/serial
+crlnumber         = $dir/crlnumber
+crl               = $dir/intermediate.crl
+default_md        = sha384
+default_days      = 90
+default_crl_days  = 7
+policy            = policy_loose
+unique_subject    = no
+copy_extensions   = none
+
+[ policy_loose ]
+organizationName        = optional
+organizationalUnitName  = optional
+commonName              = supplied
+
+[ req ]
+prompt              = no
+default_md          = sha384
+distinguished_name  = intermediate_dn
+
+[ intermediate_dn ]
+O  = Kiln Demo
+CN = Kiln Demo Intermediate CA
+
+[ server_cert ]
+basicConstraints        = critical, CA:false
+keyUsage                = critical, digitalSignature
+extendedKeyUsage        = serverAuth
+subjectAltName          = $ENV::SAN
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid, issuer
+crlDistributionPoints   = URI:http://pki.kiln.test/intermediate.crl
+authorityInfoAccess     = OCSP;URI:http://ocsp.kiln.test:2560, caIssuers;URI:http://pki.kiln.test/intermediate.crt
+
+[ client_cert ]
+basicConstraints        = critical, CA:false
+keyUsage                = critical, digitalSignature
+extendedKeyUsage        = clientAuth
+subjectAltName          = $ENV::SAN
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid, issuer
+crlDistributionPoints   = URI:http://pki.kiln.test/intermediate.crl
+authorityInfoAccess     = OCSP;URI:http://ocsp.kiln.test:2560, caIssuers;URI:http://pki.kiln.test/intermediate.crt
+
+[ ocsp_cert ]
+basicConstraints        = critical, CA:false
+keyUsage                = critical, digitalSignature
+extendedKeyUsage        = critical, OCSPSigning
+noCheck                 = ignored
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid, issuer
+
+# Kubernetes component profiles (certificate list informed by kubernetes-the-hard-way).
+[ kube_apiserver ]
+basicConstraints        = critical, CA:false
+keyUsage                = critical, digitalSignature, keyEncipherment
+extendedKeyUsage        = serverAuth
+subjectAltName          = $ENV::SAN
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid, issuer
+crlDistributionPoints   = URI:http://pki.kiln.test/intermediate.crl
+
+[ kube_client ]
+basicConstraints        = critical, CA:false
+keyUsage                = critical, digitalSignature, keyEncipherment
+extendedKeyUsage        = clientAuth
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid, issuer
+crlDistributionPoints   = URI:http://pki.kiln.test/intermediate.crl
+
+[ kubelet_serving ]
+basicConstraints        = critical, CA:false
+keyUsage                = critical, digitalSignature, keyEncipherment
+extendedKeyUsage        = serverAuth, clientAuth
+subjectAltName          = $ENV::SAN
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid, issuer
+
+[ etcd_peer ]
+basicConstraints        = critical, CA:false
+keyUsage                = critical, digitalSignature, keyEncipherment
+extendedKeyUsage        = serverAuth, clientAuth
+subjectAltName          = $ENV::SAN
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid, issuer
+
+[ etcd_client ]
+basicConstraints        = critical, CA:false
+keyUsage                = critical, digitalSignature, keyEncipherment
+extendedKeyUsage        = clientAuth
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid, issuer

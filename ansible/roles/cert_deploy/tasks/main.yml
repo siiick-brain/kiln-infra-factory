@@ -1,0 +1,52 @@
+- name: Require certificate and private key sources when deployment is enabled
+  ansible.builtin.assert:
+    that:
+      - cert_deploy_certificate_source | length > 0
+      - cert_deploy_private_key_source | length > 0
+      - cert_deploy_certificate_source != cert_deploy_private_key_source
+    fail_msg: Set distinct external certificate and private key paths.
+  when: cert_deploy_tls_deploy | bool
+
+- name: Deploy external TLS material
+  when: cert_deploy_tls_deploy | bool
+  block:
+    - name: Install server certificate
+      ansible.builtin.copy:
+        src: "{{ cert_deploy_certificate_source }}"
+        dest: /etc/pki/tls/certs/kiln-server.crt
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Reload nginx
+
+    - name: Install server private key
+      ansible.builtin.copy:
+        src: "{{ cert_deploy_private_key_source }}"
+        dest: /etc/pki/tls/private/kiln-server.key
+        owner: root
+        group: root
+        mode: "0600"
+      notify: Reload nginx
+
+- name: Configure nginx to serve the deployed certificate
+  when: cert_deploy_tls_deploy | bool and cert_deploy_nginx | bool
+  block:
+    - name: Install the nginx TLS server block
+      ansible.builtin.template:
+        src: kiln-tls.conf.j2
+        dest: /etc/nginx/conf.d/kiln-tls.conf
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Reload nginx
+
+    - name: Check whether nginx is running
+      ansible.builtin.command: /usr/bin/pgrep -x nginx
+      register: cert_deploy_nginx_running
+      changed_when: false
+      failed_when: false
+
+    - name: Start nginx when it is not running
+      ansible.builtin.command: /usr/sbin/nginx
+      when: cert_deploy_nginx_running.rc != 0
+      changed_when: true

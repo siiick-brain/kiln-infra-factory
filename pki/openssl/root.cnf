@@ -1,0 +1,45 @@
+# Root CA configuration. Used only during the ceremony while the root volume is mounted.
+[ ca ]
+default_ca = root_ca
+
+[ root_ca ]
+dir               = $ENV::PKI_ROOT_DIR
+database          = $dir/index.txt
+new_certs_dir     = $dir/newcerts
+certificate       = $dir/root.crt
+private_key       = $dir/private/root.key
+serial            = $dir/serial
+crlnumber         = $dir/crlnumber
+crl               = $dir/root.crl
+default_md        = sha384
+default_days      = 1825
+default_crl_days  = 180
+policy            = policy_strict
+unique_subject    = no
+copy_extensions   = none
+
+[ policy_strict ]
+countryName             = optional
+organizationName        = match
+commonName              = supplied
+
+[ req ]
+prompt              = no
+default_md          = sha384
+distinguished_name  = root_dn
+
+[ root_dn ]
+O  = Kiln Demo
+CN = Kiln Demo Root CA
+
+[ v3_root ]
+basicConstraints        = critical, CA:true
+keyUsage                = critical, keyCertSign, cRLSign
+subjectKeyIdentifier    = hash
+
+[ v3_intermediate ]
+basicConstraints        = critical, CA:true, pathlen:0
+keyUsage                = critical, keyCertSign, cRLSign
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid:always
+crlDistributionPoints   = URI:http://pki.kiln.test/root.crl
