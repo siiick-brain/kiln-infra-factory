@@ -1,0 +1,11 @@
+- name: Test the nginx configuration
+  listen: Reload nginx
+  ansible.builtin.command: /usr/sbin/nginx -t
+  changed_when: false
+  when: cert_deploy_nginx | bool
+
+- name: Reload nginx gracefully
+  listen: Reload nginx
+  ansible.builtin.command: /usr/sbin/nginx -s reload
+  changed_when: true
+  when: cert_deploy_nginx | bool

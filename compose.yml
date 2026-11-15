@@ -29,7 +29,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   swtpm:
-    image: kiln-infra-swtpm:0.10.2
+    image: kiln-infra-swtpm:0.7.1
     build:
       context: .
       dockerfile: docker/swtpm/Dockerfile
@@ -48,5 +48,38 @@ services:
     environment:
       ANSIBLE_AUTHORIZED_KEY: ${ANSIBLE_PUBLIC_KEY:-}
 
+  ocsp:
+    image: kiln-infra-toolbox:2026.11.15
+    working_dir: /workspace
+    command: ["bash", "pki/scripts/ocsp-responder.sh", "foreground"]
+    environment:
+      PKI_HOME: /pki
+    ports:
+      - "127.0.0.1:2560:2560"
+    volumes:
+      - .:/workspace:ro
+      - pki-intermediate:/pki/intermediate:ro
+      - pki-public:/pki/public:ro
+      - pki-issued:/pki/issued:ro
+
+  # Local-only. Mounts the Docker socket to create a kind cluster on the host daemon.
+  kind-runner:
+    image: kiln-infra-kind-runner:0.29.0
+    build:
+      context: docker/kind-runner
+    profiles: ["kind"]
+    working_dir: /workspace
+    volumes:
+      - .:/workspace:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+
 volumes:
   swtpm-state:
+  pki-root:
+    name: kiln-pki-root
+  pki-intermediate:
+    name: kiln-pki-intermediate
+  pki-public:
+    name: kiln-pki-public
+  pki-issued:
+    name: kiln-pki-issued

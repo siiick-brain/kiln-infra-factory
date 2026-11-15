@@ -1,0 +1,5 @@
+cert_deploy_tls_deploy: false
+cert_deploy_certificate_source: ""
+cert_deploy_private_key_source: ""
+cert_deploy_nginx: false
+cert_deploy_nginx_port: 8443

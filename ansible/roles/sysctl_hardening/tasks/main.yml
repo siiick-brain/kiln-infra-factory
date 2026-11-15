@@ -1,0 +1,15 @@
+- name: Create sysctl configuration directory
+  ansible.builtin.file:
+    path: /etc/sysctl.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Install sysctl hardening baseline
+  ansible.builtin.copy:
+    src: 99-kiln-hardening.conf
+    dest: /etc/sysctl.d/99-kiln-hardening.conf
+    owner: root
+    group: root
+    mode: "0644"

@@ -1,0 +1,3 @@
+- name: Reload sshd
+  ansible.builtin.command: /usr/bin/pkill -HUP -x sshd
+  changed_when: false

@@ -1,0 +1,9 @@
+- name: Install base administration packages
+  ansible.builtin.dnf:
+    name:
+      - dnf-automatic
+      - openssh-server
+      - python3
+      - rsyslog
+      - sudo
+    state: present

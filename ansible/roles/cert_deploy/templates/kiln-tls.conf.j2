@@ -1,0 +1,11 @@
+# Managed by Ansible (cert_deploy role). Serves the Kiln demo certificate.
+server {
+    listen {{ cert_deploy_nginx_port }} ssl;
+    server_name {{ inventory_hostname }};
+    ssl_certificate /etc/pki/tls/certs/kiln-server.crt;
+    ssl_certificate_key /etc/pki/tls/private/kiln-server.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    location / {
+        return 200 "kiln tls ok\n";
+    }
+}

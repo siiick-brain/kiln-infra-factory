@@ -1,0 +1,8 @@
+- name: Deploy a rotated certificate to nginx with a graceful reload
+  hosts: rocky-target-1
+  become: true
+  vars:
+    cert_deploy_tls_deploy: true
+    cert_deploy_nginx: true
+  roles:
+    - cert_deploy
