@@ -35,15 +35,6 @@ variable "spoke_address_space" {
   }
 }
 
-variable "network_tags" {
-  type        = list(string)
-  description = "Network tags for workload firewall rules."
-  default     = ["kiln-workload"]
-  validation {
-    condition     = length(var.network_tags) > 0 && alltrue([for tag in var.network_tags : can(regex("^[a-z0-9-]{1,63}$", tag))])
-    error_message = "At least one valid network tag is required."
-  }
-}
 
 variable "tags" {
   type        = map(string)

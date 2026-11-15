@@ -1,0 +1,69 @@
+# Checkov configuration. Every skipped check carries a justification on the line above it.
+# Status words follow docs/STYLE.md. A skip is an accepted finding, not a fix.
+framework:
+  - terraform
+skip-path:
+  - .terraform
+  - .terragrunt-cache
+  - tests
+compact: true
+quiet: true
+skip-check:
+  # S3 event notifications: no consumer exists for state, origin or log buckets. Planned when one does.
+  - CKV2_AWS_62
+  # Cross-region replication: doubles cost and needs a second region. Out of scope for the emulator demo.
+  - CKV_AWS_144
+  # S3 lifecycle rules: state and origin objects must not expire automatically. Log buckets are caller-owned.
+  - CKV2_AWS_61
+  # S3 access logging: needs a dedicated log bucket per account. Planned with a real landing zone.
+  - CKV_AWS_18
+  # KMS customer keys for S3 and CloudWatch Logs: SSE-S3 (AES256) is enforced by policy. KMS needs real key management and costs per key.
+  - CKV_AWS_145
+  - CKV_AWS_158
+  # CloudFront WAF and its Log4j managed rule: WAF is a paid add-on and the origin serves static files only.
+  - CKV_AWS_68
+  - CKV2_AWS_47
+  # CloudFront geo restriction: no business rule restricts countries for the demo site.
+  - CKV_AWS_374
+  # CloudFront origin failover: one origin bucket by design. A second origin is Planned with replication.
+  - CKV_AWS_310
+  # Lambda X-Ray: the emulator has no X-Ray. Tracing adds IAM permissions not needed for the demo.
+  - CKV_AWS_50
+  # Lambda in a VPC: the consumer only reads SQS and writes logs through AWS endpoints. No VPC resource is reached.
+  - CKV_AWS_117
+  # Lambda DLQ: the function is invoked by an SQS event source. Failed messages go to the queue redrive DLQ, which the module creates.
+  - CKV_AWS_116
+  # Lambda code signing: needs an AWS Signer profile, which the emulator does not provide. Planned.
+  - CKV_AWS_272
+  # Security group not attached: the net module creates a group for callers to attach. It has no ingress by default.
+  - CKV2_AWS_5
+  # App Service production sizing (zone redundancy, instance count, production SKU): the demo plan is sized for cost. Not deployed.
+  - CKV_AZURE_225
+  - CKV_AZURE_212
+  - CKV_AZURE_211
+  # App Service request tracing, HTTP logs and detailed errors: logs go to the diagnostic setting the hosting module creates.
+  - CKV_AZURE_66
+  - CKV_AZURE_63
+  - CKV_AZURE_65
+  # App Service health check path: the demo container has no health endpoint. Planned with a real image.
+  - CKV_AZURE_213
+  # Azure Files mount: the app is stateless.
+  - CKV_AZURE_88
+  # App Service built-in authentication and client certificates: the demo site is public and read-only.
+  - CKV_AZURE_13
+  - CKV_AZURE_17
+  # Key Vault private endpoint: needs a private DNS zone in the hub. Planned with the landing zone. Public network access is disabled in the module.
+  - CKV2_AZURE_32
+  # GKE Binary Authorization and Google Groups RBAC: need an attestor and a Workspace domain. Planned.
+  - CKV_GCP_66
+  - CKV_GCP_65
+  # GKE metadata server: false positive. The cluster removes the default pool and the node pool sets workload_metadata_config mode GKE_METADATA.
+  - CKV_GCP_69
+  # GitHub OIDC trust: false positive. attribute_condition requires the exact repository and ref. Checkov cannot resolve the variables. Covered by OPA and the module test.
+  - CKV_GCP_125
+  # Log sink bucket access logs, versioning and locked retention: the bucket receives exported logs only. Retention is set by the caller. Planned.
+  - CKV_GCP_62
+  - CKV_GCP_78
+  - CKV2_GCP_4
+  # BigQuery customer-supplied keys: Google-managed encryption is used for the demo dataset.
+  - CKV_GCP_81

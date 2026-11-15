@@ -1,0 +1,23 @@
+{
+  "vpc_without_flow_logs": {
+    "resource_changes": [
+      {
+        "address": "aws_vpc.bad",
+        "type": "aws_vpc",
+        "change": {
+          "actions": [
+            "create"
+          ],
+          "after": {
+            "cidr_block": "10.0.0.0/16",
+            "tags": {
+              "Environment": "test",
+              "Owner": "siiick-brain",
+              "Project": "kiln-infra-factory"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "unencrypted_storage": {
+    "resource_changes": [
+      {
+        "address": "aws_s3_bucket.bad",
+        "type": "aws_s3_bucket",
+        "change": {
+          "actions": [
+            "create"
+          ],
+          "after": {
+            "bucket": "test-bucket",
+            "tags": {
+              "Environment": "test",
+              "Owner": "siiick-brain",
+              "Project": "kiln-infra-factory"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

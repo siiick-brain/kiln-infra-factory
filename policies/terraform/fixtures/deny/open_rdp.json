@@ -1,0 +1,32 @@
+{
+  "open_rdp": {
+    "resource_changes": [
+      {
+        "address": "aws_security_group.bad",
+        "type": "aws_security_group",
+        "change": {
+          "actions": [
+            "create"
+          ],
+          "after": {
+            "ingress": [
+              {
+                "from_port": 3389,
+                "to_port": 3389,
+                "protocol": "tcp",
+                "cidr_blocks": [
+                  "0.0.0.0/0"
+                ]
+              }
+            ],
+            "tags": {
+              "Environment": "test",
+              "Owner": "siiick-brain",
+              "Project": "kiln-infra-factory"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

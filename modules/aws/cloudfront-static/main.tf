@@ -118,3 +118,10 @@ resource "aws_s3_bucket_policy" "origin" {
   bucket = aws_s3_bucket.origin.id
   policy = data.aws_iam_policy_document.origin.json
 }
+
+resource "aws_s3_bucket_versioning" "origin" {
+  bucket = aws_s3_bucket.origin.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}

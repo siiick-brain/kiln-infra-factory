@@ -1,0 +1,9 @@
+# TFLint configuration. The bundled Terraform ruleset runs with its recommended preset.
+config {
+  call_module_type = "local"
+}
+
+plugin "terraform" {
+  enabled = true
+  preset  = "recommended"
+}
