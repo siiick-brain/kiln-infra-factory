@@ -1,0 +1,51 @@
+name: Emulator drift
+
+on:
+  schedule:
+    - cron: '17 17 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Start the local emulator
+        run: docker compose up -d emulator
+
+      - name: Create the local state bucket
+        run: docker compose run --rm --no-deps toolbox bash scripts/bootstrap-state-bucket.sh
+
+      - name: Apply the emulator baseline
+        run: >-
+          docker compose run --rm --no-deps toolbox
+          terragrunt run --all --parallelism 1 --non-interactive
+          --working-dir live/dev/aws -- apply -auto-approve -no-color
+
+      - name: Check drift and write the job summary
+        run: |
+          set -euo pipefail
+          set +e
+          docker compose run --rm --no-deps toolbox bash scripts/drift-check > drift-output.txt 2>&1
+          status=$?
+          set -e
+          tail -40 drift-output.txt
+          {
+            echo "## Emulator drift check"
+            echo
+            echo "terraform plan exit code: $status"
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$status" -eq 2 ]]; then
+            set +e
+            bash scripts/drift-classify.sh drift-output.txt | tee -a "$GITHUB_STEP_SUMMARY"
+            status=${PIPESTATUS[0]}
+            set -e
+          fi
+          exit "$status"

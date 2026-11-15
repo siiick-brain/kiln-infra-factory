@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  printf 'Usage: %s [--help]\n' "${0##*/}"
+  printf 'Runs a detailed Terraform plan for the dev AWS units against the local emulator.\n'
+}
+
+if (($# > 0)); then
+  case "$1" in
+    -h|--help)
+      if (($# != 1)); then
+        usage >&2
+        exit 2
+      fi
+      usage
+      exit 0
+      ;;
+    *)
+      usage >&2
+      exit 2
+      ;;
+  esac
+fi
+
+repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+if terragrunt run --all --parallelism 1 --non-interactive \
+  --working-dir "$repo_root/live/dev/aws" -- \
+  plan -detailed-exitcode -no-color; then
+  printf 'No drift detected.\n'
+  exit 0
+else
+  plan_status=$?
+fi
+
+case "$plan_status" in
+  2)
+    printf 'Drift detected (terraform plan exit code 2).\n'
+    exit 2
+    ;;
+  *)
+    printf 'Drift plan failed with exit code %s.\n' "$plan_status" >&2
+    exit "$plan_status"
+    ;;
+esac
