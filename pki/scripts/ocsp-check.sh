@@ -17,6 +17,11 @@ if (($# < 1)); then
 fi
 
 url="${2:-${OCSP_URL:-http://127.0.0.1:2560}}"
-openssl ocsp -issuer "$PKI_PUBLIC_DIR/intermediate.crt" -cert "$1" -url "$url" \
-  -CAfile "$PKI_PUBLIC_DIR/chain.pem" -timeout 10 -resp_text 2>&1 |
-  grep -E "^$1: |Response verify|Revocation Reason" || true
+out="$(openssl ocsp -issuer "$PKI_PUBLIC_DIR/intermediate.crt" -cert "$1" -url "$url" \
+  -CAfile "$PKI_PUBLIC_DIR/chain.pem" -timeout 10 -resp_text 2>&1 || true)"
+grep -E "^$1: |Response verify|Revocation Reason" <<<"$out" || true
+# Exit 0 for good, 1 for revoked or unknown, 3 when no status came back.
+if grep -q "^$1: good" <<<"$out"; then exit 0; fi
+if grep -qE "^$1: (revoked|unknown)" <<<"$out"; then exit 1; fi
+echo "ERROR: no OCSP status for $1" >&2
+exit 3

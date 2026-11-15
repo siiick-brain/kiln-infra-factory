@@ -13,7 +13,7 @@ if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
 fi
 
 openssl ca -batch -config "$INT_CNF" -gencrl -out "$PKI_INT_DIR/intermediate.crl" 2>/dev/null
-cp "$PKI_INT_DIR/intermediate.crl" "$PKI_PUBLIC_DIR/"
+cp "$PKI_INT_DIR/intermediate.crl" "$PKI_INT_DIR/index.txt" "$PKI_PUBLIC_DIR/"
 cat "$PKI_PUBLIC_DIR/intermediate.crl" "$PKI_PUBLIC_DIR/root.crl" >"$PKI_PUBLIC_DIR/crls.pem"
 revoked="$(grep -c '^R' "$PKI_INT_DIR/index.txt" || true)"
 echo "CRL $(openssl crl -in "$PKI_PUBLIC_DIR/intermediate.crl" -noout -crlnumber) revoked=$revoked"

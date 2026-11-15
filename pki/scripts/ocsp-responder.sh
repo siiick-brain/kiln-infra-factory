@@ -12,7 +12,7 @@ usage() {
 action="${1:-}"
 port="${2:-${OCSP_PORT:-2560}}"
 pidfile="$PKI_HOME/ocsp.pid"
-cmd=(openssl ocsp -index "$PKI_INT_DIR/index.txt" -port "$port"
+cmd=(openssl ocsp -index "${OCSP_INDEX:-$PKI_PUBLIC_DIR/index.txt}" -port "$port"
   -rsigner "$PKI_ISSUED_DIR/ocsp/cert.pem" -rkey "$PKI_ISSUED_DIR/ocsp/key.pem"
   -CA "$PKI_PUBLIC_DIR/intermediate.crt" -nmin 5 -timeout 5)
 

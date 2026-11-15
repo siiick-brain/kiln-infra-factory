@@ -13,7 +13,7 @@ An operator runs the commands. An approver watches the ceremony steps and signs 
 3. Mount the root volume in a ceremony session:
 
    ```powershell
-   docker compose run --rm -v kiln-pki-root:/pki/root -v kiln-pki-intermediate:/pki/intermediate -v kiln-pki-public:/pki/public toolbox bash
+   docker compose run --rm -v kiln-pki-root:/pki/root -v kiln-pki-intermediate:/pki/intermediate -v kiln-pki-public:/pki/public -v kiln-pki-issued:/pki/issued toolbox bash
    ```
 
 4. Revoke the intermediate with the root CA:

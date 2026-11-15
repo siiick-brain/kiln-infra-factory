@@ -67,7 +67,7 @@ pid_after="$(master_pid)"
 
 [[ "$second_serial" == "$new_serial" && "$second_serial" != "$first_serial" ]] && r=ok || r="served $second_serial expected $new_serial"
 check "rotation deploys a new serial" "$r"
-[[ -n "$pid_before" && "$pid_before" == "$pid_after" ]] && r=ok || r="master pid $pid_before then $pid_after"
+[[ "$pid_before" =~ ^[0-9]+$ && "$pid_before" == "$pid_after" ]] && r=ok || r="master pid $pid_before then $pid_after"
 check "reload is graceful (nginx master PID unchanged)" "$r"
 echo | openssl s_client -connect rocky-target-1:8443 -CAfile "$PKI_HOME/public/chain.pem" -verify_return_error >/dev/null 2>&1 && r=ok || r="chain did not verify"
 check "served chain verifies against the Kiln root" "$r"

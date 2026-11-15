@@ -85,3 +85,17 @@ test_default_deny_policy_must_select_all_pods if {
 	some msg in k8s.deny with input as np
 	contains(msg, "default-deny")
 }
+
+test_host_network_denied if {
+	bad := json.patch(good_deployment, [{"op": "add", "path": "/spec/template/spec/hostNetwork", "value": true}])
+	some msg in k8s.deny with input as bad
+	contains(msg, "host namespaces")
+}
+
+test_cronjob_root_container_denied if {
+	pod := good_deployment.spec.template.spec
+	root := json.patch(pod, [{"op": "replace", "path": "/containers/0/securityContext/runAsNonRoot", "value": false}, {"op": "replace", "path": "/securityContext/runAsNonRoot", "value": false}])
+	cron := {"apiVersion": "batch/v1", "kind": "CronJob", "metadata": {"name": "nightly"}, "spec": {"jobTemplate": {"spec": {"template": {"spec": root}}}}}
+	some msg in k8s.deny with input as cron
+	contains(msg, "runAsNonRoot")
+}

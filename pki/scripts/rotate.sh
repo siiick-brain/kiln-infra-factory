@@ -21,15 +21,22 @@ fi
 name="$1"
 dir="$PKI_ISSUED_DIR/$name"
 [[ -f "$dir/cert.pem" ]] || die "nothing to rotate at $dir"
-cn="$(openssl x509 -in "$dir/cert.pem" -noout -subject -nameopt multiline | awk -F' = ' '/commonName/ {print $2}')"
+subject="$(openssl x509 -in "$dir/cert.pem" -noout -subject -nameopt multiline)"
+cn="$(awk -F' = ' '/commonName/ {print $2}' <<<"$subject")"
+# Keep the organization: Kubernetes reads it as the group, for example system:masters.
+org="$(awk -F' = ' '/organizationName/ {print $2}' <<<"$subject")"
 profile="$(cat "$dir/profile.txt" 2>/dev/null || echo server_cert)"
 old_serial="$(openssl x509 -in "$dir/cert.pem" -noout -serial)"
 
 rm -rf "$dir/previous"
 mkdir -p "$dir/previous"
 cp -p "$dir/key.pem" "$dir/cert.pem" "$dir/previous/"
-"$SCRIPT_DIR/csr.sh" "$name" "$cn" "$(cat "$dir/san.txt")" >/dev/null
-"$SCRIPT_DIR/issue.sh" "$name" "$profile" >/dev/null
+restore() {
+  cp -p "$dir/previous/key.pem" "$dir/previous/cert.pem" "$dir/"
+  die "rotation failed. The previous key and certificate were restored."
+}
+"$SCRIPT_DIR/csr.sh" "$name" "$cn" "$(cat "$dir/san.txt")" "${org:-Kiln Demo}" >/dev/null || restore
+"$SCRIPT_DIR/issue.sh" "$name" "$profile" >/dev/null || restore
 new_serial="$(openssl x509 -in "$dir/cert.pem" -noout -serial)"
 echo "ROTATED $name old=${old_serial#serial=} new=${new_serial#serial=}"
 

@@ -3,11 +3,13 @@ package k8s
 
 import rego.v1
 
-workload_kinds := {"Deployment", "StatefulSet", "DaemonSet", "Job"}
+workload_kinds := {"Deployment", "StatefulSet", "DaemonSet", "Job", "ReplicaSet"}
 
 pod_spec := input.spec.template.spec if input.kind in workload_kinds
 
 pod_spec := input.spec if input.kind == "Pod"
+
+pod_spec := input.spec.jobTemplate.spec.template.spec if input.kind == "CronJob"
 
 containers contains c if {
 	some c in pod_spec.containers
@@ -93,4 +95,10 @@ deny contains msg if {
 	name == "default-deny"
 	not {"Ingress", "Egress"} == {t | some t in object.get(input.spec, "policyTypes", [])}
 	msg := "NetworkPolicy/default-deny must cover Ingress and Egress"
+}
+
+deny contains msg if {
+	some field in ["hostNetwork", "hostPID", "hostIPC"]
+	pod_spec[field] == true
+	msg := sprintf("%s/%s must not use host namespaces (%s)", [input.kind, name, field])
 }

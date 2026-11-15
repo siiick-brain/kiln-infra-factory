@@ -2,7 +2,8 @@ def test_target_is_rocky(host):
     assert host.system_info.distribution == "rocky"
 
 
-def test_ansible_user_has_restricted_sudo(host):
+def test_ansible_user_sudo_rule_is_installed_and_validated(host):
+    # The automation user needs passwordless sudo for become. The rule is not restricted.
     sudoers = host.file("/etc/sudoers.d/ansible")
 
     assert sudoers.exists

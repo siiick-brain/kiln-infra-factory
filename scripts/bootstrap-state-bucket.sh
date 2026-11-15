@@ -15,12 +15,19 @@ fi
 bucket="${1:-kiln-infra-state}"
 endpoint="${2:-${EMULATOR_URL:-http://emulator:5000}}"
 case "$endpoint" in
+  http://*@*) echo "Refusing an endpoint with user info: $endpoint" >&2; exit 2 ;;
   http://emulator:* | http://127.0.0.1:* | http://localhost:*) ;;
   *)
     echo "Refusing non-local endpoint: $endpoint" >&2
     exit 2
     ;;
 esac
+
+# Wait up to 30 seconds for the emulator after a restart.
+for _ in $(seq 1 30); do
+  curl -fsS -o /dev/null "$endpoint/moto-api/" && break
+  sleep 1
+done
 
 # Moto routes requests by the service named in the signature scope. The key is the fake value "testing".
 auth="Authorization: AWS4-HMAC-SHA256 Credential=testing/20260101/us-east-1/s3/aws4_request, SignedHeaders=host, Signature=0"

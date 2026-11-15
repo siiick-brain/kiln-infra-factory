@@ -22,4 +22,5 @@ cert="$1"
 [[ -f "$cert" ]] || die "certificate not found: $1"
 reason="${2:-unspecified}"
 openssl ca -batch -config "$INT_CNF" -revoke "$cert" -crl_reason "$reason" 2>/dev/null
+cp "$PKI_INT_DIR/index.txt" "$PKI_PUBLIC_DIR/index.txt"
 echo "REVOKED $(openssl x509 -in "$cert" -noout -serial) reason=$reason"
