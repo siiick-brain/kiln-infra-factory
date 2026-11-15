@@ -21,8 +21,10 @@ $rows = [System.Collections.Generic.List[object]]::new()
 
 function Read-Log([string]$name) {
     $path = Join-Path $logs $name
-    if (Test-Path -LiteralPath $path) { return [System.IO.File]::ReadAllText($path) }
-    return $null
+    if (-not (Test-Path -LiteralPath $path)) { return $null }
+    # Share read and write so a log that a running job still writes can be read.
+    $stream = [System.IO.File]::Open($path, 'Open', 'Read', 'ReadWrite')
+    try { return (New-Object System.IO.StreamReader($stream)).ReadToEnd() } finally { $stream.Dispose() }
 }
 
 function Add-Row([int]$id, [string]$skill, [string]$status, [string]$evidence, [string]$command) {
@@ -118,6 +120,8 @@ Add-Row 22 'Cross-project documents exist' ($(if ($absent.Count -eq 0) { 'Pass' 
 
 # Row 23: hygiene.
 Push-Location $root
+# Native tools write progress to stderr. Windows PowerShell 5.1 turns that into an error under Stop.
+$ErrorActionPreference = 'Continue'
 try {
     $allowed = (Get-Content '.github\allowed-author' -Raw).Trim()
     $emails = @(git log --format='%ae%n%ce' | Sort-Object -Unique)
@@ -130,7 +134,7 @@ try {
     $leakTree = $LASTEXITCODE
     $null = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'scripts\check-style.ps1')
     $style = $LASTEXITCODE
-} finally { Pop-Location }
+} finally { Pop-Location; $ErrorActionPreference = 'Stop' }
 $hyg = ($emails.Count -eq 1 -and $emails[0] -eq $allowed -and $names.Count -eq 1 -and $coauthors -eq 0 -and $tracked.Count -eq 0 -and $leakHistory -eq 0 -and $leakTree -eq 0 -and $style -eq 0)
 $hygEvidence = "authors=$($names.Count) emails=$($emails.Count) coauthored=$coauthors tracked-tooling=$($tracked.Count) gitleaks-history=$leakHistory gitleaks-tree=$leakTree style=$style"
 Add-Row 23 'Hygiene: one author, no co-author trailers, no tooling or key files, gitleaks clean, style clean' ($(if ($hyg) { 'Pass' } else { 'Fail' })) $hygEvidence 'git log, gitleaks, scripts/check-style.ps1'
