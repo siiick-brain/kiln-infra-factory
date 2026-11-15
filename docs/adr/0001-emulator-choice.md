@@ -39,3 +39,8 @@ Terraform's emulator provider configuration uses fake local credentials. No modu
 - [Moto SQS behavior](https://docs.getmoto.org/en/latest/docs/services/sqs.html)
 - [Moto STS behavior](https://docs.getmoto.org/en/latest/docs/services/sts.html)
 - [LocalStack installation and authentication](https://docs.localstack.cloud/aws/getting-started/installation/)
+
+## Later evaluation: floci
+
+On 2026-11-15 floci was read as a candidate. Its README states it needs no account, auth token or paid feature gate and serves S3, SQS, Lambda, IAM and STS. It meets the selection rule. Moto stays selected because every emulator test was already built and verified on it, so a switch would repeat that work without adding coverage. floci remains a fallback if a Moto gap blocks a test.
+

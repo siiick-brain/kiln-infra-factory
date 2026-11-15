@@ -1,0 +1,8 @@
+flowchart LR
+  Dev["Workstation<br/>author, toolbox, keys"] -->|git push| GH["GitHub repository"]
+  GH -->|workflow run| CI["GitHub Actions runner"]
+  CI -->|OIDC token, sub = repo and ref| Cloud["Cloud control planes<br/>AWS, Azure, GCP"]
+  CI -->|read and write, lock| State["State backend<br/>S3 with lock file"]
+  Dev -->|ceremony only| Root["Offline root volume"]
+  Dev -->|SSH, Ansible| Hosts["Rocky hosts"]
+  Hosts -->|OCSP and CRL fetch| PKI["OCSP responder and CRL"]

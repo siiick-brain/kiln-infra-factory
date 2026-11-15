@@ -1,0 +1,10 @@
+flowchart TD
+  G["Attacker issues trusted certificates"] --> A["Obtain intermediate key"]
+  G --> B["Obtain root key"]
+  G --> C["Abuse issuance without the key"]
+  A --> A1["Read kiln-pki-intermediate volume<br/>needs host or Docker access"]
+  A --> A2["Copy from backup<br/>control: intermediate is not backed up"]
+  B --> B1["Root volume mounted outside a ceremony<br/>control: procedure and ceremony log"]
+  B --> B2["Steal offline media<br/>control: locked storage"]
+  C --> C1["Submit a CSR for a name they do not own<br/>control: operator checks SAN against the request"]
+  C --> C2["Modify intermediate.cnf profile<br/>control: code review and policy tests"]

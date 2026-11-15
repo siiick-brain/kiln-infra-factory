@@ -1,0 +1,29 @@
+flowchart LR
+  subgraph repo["Repository"]
+    mods["modules/<br/>aws, azure, gcp, secrets"]
+    live["live/dev, stage, prod<br/>Terragrunt units"]
+    pol["policies/<br/>Rego for Terraform and k8s"]
+    ans["ansible/<br/>7 roles"]
+    pki["pki/<br/>OpenSSL CA scripts"]
+    tpm["tpm/<br/>tpm2-tools scripts"]
+    k8s["k8s/base"]
+  end
+  subgraph local["Local containers (Docker Compose)"]
+    tb["toolbox<br/>terraform, terragrunt, tflint,<br/>checkov, opa, conftest, ansible"]
+    moto["emulator<br/>Moto 5.2.5"]
+    sw["swtpm<br/>software TPM"]
+    rocky["rocky-target-1 and 2<br/>Rocky Linux 9.8"]
+    ocsp["ocsp<br/>OpenSSL responder"]
+    kind["kind-runner<br/>local only"]
+  end
+  mods --> live
+  live -->|plan, apply, destroy| tb
+  tb -->|S3, SQS, Lambda, IAM, STS| moto
+  pol -->|opa test, conftest| tb
+  ans -->|SSH| rocky
+  pki --> tb
+  tb -->|rotate --deploy| rocky
+  tpm -->|TCTI swtpm| sw
+  k8s --> kind
+  pki -.->|CRL, OCSP| ocsp
+  azure["Azure and GCP modules"] -.->|validate, mock tests, policy only| tb

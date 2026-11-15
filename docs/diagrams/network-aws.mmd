@@ -1,0 +1,11 @@
+flowchart LR
+  Internet --> IGW[Internet gateway]
+  IGW --> Public[Public subnet]
+  Public --> NAT[NAT gateway]
+  NAT --> Private[Private subnet]
+  Public --> Routes[Public route table]
+  Private --> PrivateRoutes[Private route table]
+  VPC[VPC] --> SG[Security group]
+  VPC --> Logs[Flow logs to S3]
+  Routes --> IGW
+  PrivateRoutes --> NAT
