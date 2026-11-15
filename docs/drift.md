@@ -1,29 +1,59 @@
 # Drift detection
 
-`scripts/drift-check` runs a detailed Terragrunt plan for the AWS units in dev against the local Moto endpoint. It preserves Terraform's plan diff and exit status:
+`scripts/drift-check` runs `terraform plan -detailed-exitcode` through Terragrunt for the dev AWS units against the Moto emulator. It keeps Terraform's plan diff and exit status.
 
 | Exit code | Meaning |
 |---:|---|
 | 0 | No drift |
-| 2 | Terraform found drift |
-| Other | The plan failed |
+| 2 | Terraform found a difference |
+| Other | The plan failed. A plan error is not drift |
 
-The local demonstration applies the dev AWS units to Moto, changes an SQS queue attribute through Moto and runs the drift check. Apply the configuration again to restore the declared queue settings:
+## Demonstration
+
+`scripts/drift-demo.sh` runs inside the toolbox with the emulator up:
+
+1. Create the versioned state bucket on the emulator (`scripts/bootstrap-state-bucket.sh`).
+2. Apply the four dev AWS units.
+3. Set the `dev-events` queue visibility timeout to 45 seconds with a direct SQS API call. This is the out-of-band change.
+4. Run the drift check. Expect exit 2 and `visibility_timeout_seconds 45 -> 60` in the diff.
+5. Apply again to remediate.
+6. Run the drift check again.
 
 ```powershell
 docker compose up -d emulator
-.\scripts\tb.ps1 terragrunt run --all --parallelism 1 --non-interactive --working-dir live/dev/aws -- apply -auto-approve -no-color
-docker compose exec -T emulator python -c "import boto3; c=boto3.client('sqs', endpoint_url='http://127.0.0.1:5000', region_name='us-east-1', aws_access_key_id='testing', aws_secret_access_key='testing'); u=c.get_queue_url(QueueName='dev-events')['QueueUrl']; c.set_queue_attributes(QueueUrl=u, Attributes={'VisibilityTimeout':'45'})"
-bash scripts/drift-check
-.\scripts\tb.ps1 terragrunt run --all --parallelism 1 --non-interactive --working-dir live/dev/aws -- apply -auto-approve -no-color
+docker compose run --rm --no-deps toolbox bash scripts/drift-demo.sh
 ```
 
-The Moto endpoint and credentials in the command are local demo values. This check does not observe real cloud resources. The scheduled workflow provisions the emulator state for its run, checks for drift and never commits changes.
+The endpoint and the `testing` credentials are local emulator values. No cloud account is involved.
 
-## Observed local run
+## The emulator artifact
 
-On 2026-11-01, the baseline apply completed for all four dev AWS units. Setting `dev-events` `VisibilityTimeout` to `45` produced exit code `2`; the plan showed `45 -> 60`. The remediation apply completed for all four units.
+Moto returns queue policy JSON with a space after each separator. AWS returns it compact. The AWS provider therefore reports a whitespace-only change on `redrive_policy` and recomputes the dependent queue policy on every plan. Exit code 0 is never reached on the emulator, even with no real change.
 
-A subsequent full drift check did not confirm exit code `0`. It exited `1` because Terraform could not resolve `registry.terraform.io` while initializing `lambda-sqs-consumer`. The SQS plan also continued to report redrive policy and queue policy changes after apply. A clean post-remediation result is **Not verified**. The emulator was local and no cloud account was used.
+`scripts/drift-classify.sh` separates that artifact from real drift. It ignores exactly two things:
 
-The scheduled job starts a fresh Moto instance and applies a baseline before checking. It validates the drift command against that run's state but cannot detect changes between scheduled runs.
+- `redrive_policy` on `aws_sqs_queue` when Terraform marks the line `# whitespace changes`
+- `policy` on `aws_sqs_queue_policy`
+
+Every other changed attribute counts as drift, including a `policy` on a bucket or an IAM role. `tests/test_drift_classify.bats` proves both sides. Use the classifier only against emulator plans. Against real AWS every change is drift.
+
+## Results on 2026-11-15
+
+Log: `artifacts/logs/drift-demo.log` and the step logs in `artifacts/logs/drift-demo/`.
+
+| Step | Result |
+|------|--------|
+| Baseline apply | PASS |
+| Check after apply | exit 2. Besides the artifact, the state bucket showed a `tags` change that disappeared after the next apply. Recorded as an emulator first-apply effect, Not verified |
+| Out-of-band change | PASS |
+| Check after the change | PASS: exit 2 with `visibility_timeout_seconds 45 -> 60` |
+| Remediation apply | PASS |
+| Check after remediation | exit 2 from the artifact only. The classifier reports no other changed attribute. The injected change is gone |
+
+Status: drift detection with exit code 2 is Verified on the emulator. A clean exit 0 after remediation is **Not verified** because of the artifact above.
+
+## Scheduled workflow
+
+`.github/workflows/drift.yml` runs weekly and on demand. It starts a fresh emulator, applies the dev baseline, runs the drift check and writes the exit code to the job summary. On exit 2 it runs the classifier and fails only when a real attribute changed. It never commits and never opens issues. A fresh emulator holds no state between runs, so the job checks the drift tooling rather than long-lived infrastructure.
+
+Runbook: [drift detected](runbooks/drift.md).
