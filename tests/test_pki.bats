@@ -73,11 +73,13 @@ teardown_file() {
 @test "OCSP reports revoked for the revoked certificate" {
   run ocsp-check.sh "$PKI_HOME/issued/bad/cert.pem"
   [[ "$output" == *": revoked"* ]]
+  [ "$status" -eq 1 ]
 }
 
 @test "OCSP reports good for a valid certificate" {
   run ocsp-check.sh "$PKI_HOME/issued/web/cert.pem"
   [[ "$output" == *": good"* ]]
+  [ "$status" -eq 0 ]
 }
 
 @test "rotation gives a new serial and keeps the old certificate valid during overlap" {
@@ -96,4 +98,12 @@ teardown_file() {
   [[ "$output" == *"WARN"* ]]
   run expiry-monitor.sh 1
   [[ "$output" != *"WARN issued/web"* ]]
+}
+
+@test "a relative PKI_HOME inside the repository is refused" {
+  cd "$REPO"
+  run env PKI_HOME=./keys-should-not-exist csr.sh x x.kiln.test DNS:x.kiln.test
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"refusing to keep key material inside the repository"* ]]
+  [ ! -e "$REPO/keys-should-not-exist" ]
 }

@@ -61,3 +61,10 @@ teardown_file() {
   pub_file="$(cat "$PKI_HOME/issued/service-account/pub.pem")"
   [ "$pub_from_key" = "$pub_file" ]
 }
+
+@test "rotating the admin certificate keeps the system:masters group" {
+  run rotate.sh admin
+  [ "$status" -eq 0 ]
+  run openssl x509 -in "$PKI_HOME/issued/admin/cert.pem" -noout -subject
+  [[ "$output" =~ O\ ?=\ ?system:masters ]]
+}

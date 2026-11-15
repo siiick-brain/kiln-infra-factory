@@ -41,3 +41,4 @@ artifacts/logs/
 .ansible/
 .terraform-plugin-cache/
 modules/**/.terraform.lock.hcl
+.no-ansible-key-dir/

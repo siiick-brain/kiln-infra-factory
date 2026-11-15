@@ -37,7 +37,7 @@ Every leaf carries a Subject Key Identifier and an Authority Key Identifier. The
 The root key exists only in the `pki-root` volume. That volume is mounted for the ceremony and never for daily work.
 
 1. Two people are present: an operator and an approver. The approver checks that the host has no network share or sync client mapped to the volume.
-2. Run `docker compose run --rm -v kiln-pki-root:/pki/root -v kiln-pki-intermediate:/pki/intermediate -v kiln-pki-public:/pki/public toolbox pki/scripts/ceremony.sh`.
+2. Run `docker compose run --rm -v kiln-pki-root:/pki/root -v kiln-pki-intermediate:/pki/intermediate -v kiln-pki-public:/pki/public -v kiln-pki-issued:/pki/issued toolbox pki/scripts/ceremony.sh`.
 3. The script prints six numbered steps and the root SHA-256 fingerprint. The approver records the date, the fingerprint and both names in the ceremony log.
 4. Unmount the root volume. Export it with `docker run --rm -v kiln-pki-root:/v -v <offline-media>:/o alpine tar czf /o/root.tgz -C /v .` to offline media and store the media in a locked place.
 5. Daily operations mount only `kiln-pki-intermediate` and `kiln-pki-public`.
@@ -60,7 +60,7 @@ This is an offline-style ceremony on a developer workstation. It shows the steps
 
 `gen-crl.sh` signs a new intermediate CRL with a 7 day `nextUpdate` and writes `crls.pem` with both CRLs for full-chain checks. Run it after every revocation and at least weekly.
 
-`ocsp-responder.sh foreground` runs `openssl ocsp` against the intermediate `index.txt`. It signs responses with the delegated `ocsp_cert`, which carries `noCheck` so clients do not need a revocation check for the responder itself. The `ocsp` Compose service runs it on port 2560. `ocsp-check.sh <cert>` prints `good`, `revoked` or `unknown`.
+`ocsp-responder.sh foreground` runs `openssl ocsp` against a copy of the intermediate `index.txt` that `issue.sh`, `revoke.sh` and `gen-crl.sh` publish to the public volume. The `ocsp` container mounts only the public volume and the `ocsp` subpath of the issued volume, so it never sees a CA private key or another leaf key. It signs responses with the delegated `ocsp_cert`, which carries `noCheck` so clients do not need a revocation check for the responder itself. The `ocsp` Compose service runs it on port 2560. `ocsp-check.sh <cert>` prints `good`, `revoked` or `unknown`.
 
 The OpenSSL responder handles one request at a time. It is suitable for a demonstration. It is not a production OCSP service.
 

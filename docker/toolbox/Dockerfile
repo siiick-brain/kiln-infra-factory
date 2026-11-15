@@ -15,6 +15,11 @@ ARG SHELLCHECK_VERSION=0.11.0
 ARG BATS_VERSION=1.14.0
 ARG TERRAFORM_DOCS_VERSION=0.24.0
 ARG TPM2_TOOLS_VERSION=5.7-1
+# These projects publish no checksum file for the assets used here. The hashes were recorded
+# from the release downloads on 2026-11-15 and pin the exact files.
+ARG AGE_SHA256=cbe24006683f8eb669266162894b9a522a1af52f2665fbc63a4bb032ed26ac10
+ARG SHELLCHECK_SHA256=8c3be12b05d5c177a04c29e3c78ce89ac86f1595681cab149b65b97c4e227198
+ARG BATS_SHA256=bb537b70b15b732f6d8827dd6578e3d8ce166636ce1f18ea9a074184fcce9177
 
 ENV PATH="/opt/toolbox-venv/bin:/usr/local/bin:${PATH}"
 WORKDIR /workspace
@@ -76,13 +81,13 @@ RUN set -eux; \
     curl -fsSLO "https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.checksums.txt"; \
     grep "sops-v${SOPS_VERSION}.linux.amd64$" "sops-v${SOPS_VERSION}.checksums.txt" | sha256sum -c -; \
     install -m 0755 "sops-v${SOPS_VERSION}.linux.amd64" /usr/local/bin/sops; \
-    curl -fsSLO "https://github.com/FiloSottile/age/releases/download/v${AGE_VERSION}/age-v${AGE_VERSION}-linux-amd64.tar.gz"; \
+    curl -fsSLO "https://github.com/FiloSottile/age/releases/download/v${AGE_VERSION}/age-v${AGE_VERSION}-linux-amd64.tar.gz";     echo "${AGE_SHA256}  age-v${AGE_VERSION}-linux-amd64.tar.gz" | sha256sum -c -; \
     tar -xzf "age-v${AGE_VERSION}-linux-amd64.tar.gz"; \
     install -m 0755 age/age age/age-keygen /usr/local/bin/; \
-    curl -fsSLO "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz"; \
+    curl -fsSLO "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz";     echo "${SHELLCHECK_SHA256}  shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" | sha256sum -c -; \
     tar -xJf "shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz"; \
     install -m 0755 "shellcheck-v${SHELLCHECK_VERSION}/shellcheck" /usr/local/bin/shellcheck; \
-    curl -fsSL "https://github.com/bats-core/bats-core/archive/refs/tags/v${BATS_VERSION}.tar.gz" -o bats-core.tar.gz; \
+    curl -fsSL "https://github.com/bats-core/bats-core/archive/refs/tags/v${BATS_VERSION}.tar.gz" -o bats-core.tar.gz;     echo "${BATS_SHA256}  bats-core.tar.gz" | sha256sum -c -; \
     tar -xzf bats-core.tar.gz; \
     "./bats-core-${BATS_VERSION}/install.sh" /usr/local; \
     curl -fsSLO "https://github.com/terraform-docs/terraform-docs/releases/download/v${TERRAFORM_DOCS_VERSION}/terraform-docs-v${TERRAFORM_DOCS_VERSION}-linux-amd64.tar.gz"; \

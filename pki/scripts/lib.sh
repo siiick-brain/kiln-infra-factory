@@ -22,8 +22,9 @@ die() {
 
 refuse_repo_path() {
   local repo target
-  repo="$(cd "$PKI_CONF_DIR/../.." && pwd)"
-  target="$(cd "$1" 2>/dev/null && pwd || echo "$1")"
+  repo="$(realpath -m "$PKI_CONF_DIR/../..")"
+  # realpath -m resolves relative and not yet created paths, so neither can slip past the check.
+  target="$(realpath -m "$1")"
   case "$target" in
     "$repo" | "$repo"/*) die "refusing to keep key material inside the repository: $1" ;;
   esac
@@ -38,3 +39,9 @@ init_ca_dir() {
   openssl rand -hex 16 >"$dir/serial"
   echo 1000 >"$dir/crlnumber"
 }
+
+# Every PKI script sources this file, so every script refuses a PKI_HOME inside the repository.
+for _pki_dir in "$PKI_HOME" "$PKI_ROOT_DIR" "$PKI_INT_DIR" "$PKI_ISSUED_DIR"; do
+  refuse_repo_path "$_pki_dir"
+done
+unset _pki_dir

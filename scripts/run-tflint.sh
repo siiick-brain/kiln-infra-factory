@@ -17,8 +17,14 @@ findings=0
 dirs=0
 while IFS= read -r dir; do
   dirs=$((dirs + 1))
-  out="$(tflint --chdir "$dir" --config "$repo/.tflint.hcl" --format compact 2>&1 || true)"
+  rc=0
+  out="$(tflint --chdir "$dir" --config "$repo/.tflint.hcl" --format compact 2>&1)" || rc=$?
   count="$(printf '%s\n' "$out" | grep -cE ': (Warning|Error|Notice) ' || true)"
+  # TFLint exits 2 when it reports findings. Any other non-zero exit is a tool failure, not a clean result.
+  if ((rc != 0 && rc != 2)) || ((rc == 2 && count == 0)); then
+    count=$((count + 1))
+    out="$out"$'\n'"$dir: Error - tflint exited $rc"
+  fi
   findings=$((findings + count))
   if ((count == 0)); then echo "PASS ${dir#"$repo"/}"; else
     echo "FAIL ${dir#"$repo"/} findings=$count"

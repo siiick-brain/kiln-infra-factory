@@ -13,7 +13,7 @@ services:
     volumes:
       - .:/workspace
       - type: bind
-        source: ${ANSIBLE_KEY_DIR:-.}
+        source: ${ANSIBLE_KEY_DIR:-./.no-ansible-key-dir}
         target: /run/ansible-keys
         read_only: true
 
@@ -22,13 +22,11 @@ services:
     build:
       context: .
       dockerfile: docker/emulator/Dockerfile
+    # No Docker socket: Moto stores Lambda functions but does not run them. See docs/drift.md and ADR 0001.
     environment:
-      MOTO_DOCKER_NETWORK_NAME: kiln-infra-factory_default
       MOTO_PORT: "5000"
     ports:
       - "127.0.0.1:5000:5000"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
 
   swtpm:
     image: kiln-infra-swtpm:0.7.1
@@ -58,11 +56,16 @@ services:
       PKI_HOME: /pki
     ports:
       - "127.0.0.1:2560:2560"
+    # Only public data and the OCSP signing pair. No CA private key and no other leaf key is mounted.
     volumes:
       - .:/workspace:ro
-      - pki-intermediate:/pki/intermediate:ro
       - pki-public:/pki/public:ro
-      - pki-issued:/pki/issued:ro
+      - type: volume
+        source: pki-issued
+        target: /pki/issued/ocsp
+        read_only: true
+        volume:
+          subpath: ocsp
 
   # Local-only. Mounts the Docker socket to create a kind cluster on the host daemon.
   kind-runner:

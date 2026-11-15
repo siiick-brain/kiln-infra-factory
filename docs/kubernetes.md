@@ -23,7 +23,7 @@ On kind the workload identity annotation has no effect. It is checked by policy 
 | Policy unit tests | `opa test policies/k8s` |
 | Cluster | `docker compose --profile kind run --rm kind-runner bash k8s/kind-apply.sh` |
 
-The Conftest rules in `policies/k8s/main.rego` deny containers that can run as root, have a writable root filesystem, allow privilege escalation, are privileged, keep capabilities, lack CPU or memory limits or use an image without a digest. They also deny a namespace without the `restricted` level, a ServiceAccount without the workload identity annotation and a `default-deny` policy that does not select every pod for both directions.
+The Conftest rules in `policies/k8s/main.rego` deny containers that can run as root, have a writable root filesystem, allow privilege escalation, are privileged, keep capabilities, lack CPU or memory limits or use an image without a digest. They also deny host namespaces (hostNetwork, hostPID, hostIPC), a namespace without the `restricted` level, a ServiceAccount without the workload identity annotation and a `default-deny` policy that does not select every pod for both directions. The rules cover Deployment, StatefulSet, DaemonSet, ReplicaSet, Job, CronJob and Pod.
 
 ## The kind-runner trust decision
 
@@ -41,6 +41,6 @@ kindnet in kind 0.29 implements NetworkPolicy, but traffic blocking is not teste
 | Check | Result |
 |-------|--------|
 | kubeconform | 6 resources in 5 files valid, 0 invalid on 2026-11-15 |
-| Conftest | 66 tests, 66 passed, 0 failures on 2026-11-15 |
-| `opa test policies/k8s` | 10 of 10 passed on 2026-11-15 |
+| Conftest | 72 tests, 72 passed, 0 failures on 2026-11-15 |
+| `opa test policies/k8s` | 12 of 12 passed on 2026-11-15 |
 | kind | 7 PASS, 0 FAIL on 2026-11-15: both pods uid 101 with a read-only root filesystem, namespace enforces restricted, admission rejects a root pod, default-deny exists. Log `artifacts/logs/kind-apply.log` |

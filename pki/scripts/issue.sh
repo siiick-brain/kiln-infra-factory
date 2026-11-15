@@ -40,4 +40,6 @@ if ! openssl ca -batch -config "$INT_CNF" -extensions "$profile" "${dates[@]}" -
 fi
 printf '%s\n' "$profile" >"$dir/profile.txt"
 cat "$dir/cert.pem" "$PKI_PUBLIC_DIR/intermediate.crt" >"$dir/fullchain.pem"
+# The OCSP responder reads this published copy, so it never needs the CA private key volume.
+cp "$PKI_INT_DIR/index.txt" "$PKI_PUBLIC_DIR/index.txt"
 echo "ISSUED $name $(openssl x509 -in "$dir/cert.pem" -noout -serial) profile=$profile"

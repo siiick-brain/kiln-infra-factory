@@ -9,6 +9,7 @@ SEAL_PCR="${SEAL_PCR:-16}"
 NV_INDEX="${NV_INDEX:-0x1500016}"
 export TPM_WORK SEAL_PCR NV_INDEX
 mkdir -p "$TPM_WORK"
+chmod 700 "$TPM_WORK"
 
 die() {
   echo "ERROR: $*" >&2
