@@ -48,7 +48,7 @@ resource "aws_iam_role" "lambda" {
 
 resource "aws_cloudwatch_log_group" "lambda" {
   name              = "/aws/lambda/${var.function_name}"
-  retention_in_days = 30
+  retention_in_days = 365
   tags              = var.tags
 }
 

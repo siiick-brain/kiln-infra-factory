@@ -21,6 +21,12 @@ resource "google_compute_subnetwork" "service" {
   network                  = google_compute_network.shared.id
   ip_cidr_range            = var.subnet_cidr
   private_ip_google_access = true
+
+  log_config {
+    aggregation_interval = "INTERVAL_5_SEC"
+    flow_sampling        = 0.5
+    metadata             = "INCLUDE_ALL_METADATA"
+  }
 }
 
 resource "google_compute_subnetwork_iam_member" "network_user" {

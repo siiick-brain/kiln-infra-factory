@@ -50,6 +50,9 @@ variable "network_tags" {
   }
 }
 
+# Compute networks, subnets and firewall rules do not accept labels. The variable stays so the
+# required label validation still applies to every caller, as in the other modules.
+# tflint-ignore: terraform_unused_declarations
 variable "labels" {
   type        = map(string)
   description = "Resource labels. environment, owner and project are required."

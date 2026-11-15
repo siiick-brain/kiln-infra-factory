@@ -1,0 +1,28 @@
+{
+  "gke_without_workload_identity": {
+    "resource_changes": [
+      {
+        "address": "google_container_cluster.bad",
+        "type": "google_container_cluster",
+        "change": {
+          "actions": [
+            "create"
+          ],
+          "after": {
+            "private_cluster_config": [
+              {
+                "enable_private_nodes": true
+              }
+            ],
+            "workload_identity_config": [],
+            "resource_labels": {
+              "environment": "test",
+              "owner": "siiick-brain",
+              "project": "kiln-infra-factory"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

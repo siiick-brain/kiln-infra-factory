@@ -1,0 +1,32 @@
+{
+  "public_gke_nodes": {
+    "resource_changes": [
+      {
+        "address": "google_container_cluster.bad",
+        "type": "google_container_cluster",
+        "change": {
+          "actions": [
+            "create"
+          ],
+          "after": {
+            "private_cluster_config": [
+              {
+                "enable_private_nodes": false
+              }
+            ],
+            "workload_identity_config": [
+              {
+                "workload_pool": "test.svc.id.goog"
+              }
+            ],
+            "resource_labels": {
+              "environment": "test",
+              "owner": "siiick-brain",
+              "project": "kiln-infra-factory"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

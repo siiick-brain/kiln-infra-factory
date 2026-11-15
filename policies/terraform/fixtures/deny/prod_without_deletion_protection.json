@@ -1,0 +1,24 @@
+{
+  "prod_without_deletion_protection": {
+    "environment": "prod",
+    "resource_changes": [
+      {
+        "address": "aws_db_instance.bad",
+        "type": "aws_db_instance",
+        "change": {
+          "actions": [
+            "create"
+          ],
+          "after": {
+            "deletion_protection": false,
+            "tags": {
+              "Environment": "prod",
+              "Owner": "siiick-brain",
+              "Project": "kiln-infra-factory"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -28,16 +28,17 @@ resource "google_service_account_iam_member" "gke_workload_identity" {
 }
 
 resource "google_container_cluster" "private" {
-  project                  = var.project_id
-  name                     = var.name
-  location                 = var.region
-  network                  = var.network
-  subnetwork               = var.subnetwork
-  remove_default_node_pool = true
-  initial_node_count       = 1
-  enable_shielded_nodes    = true
-  deletion_protection      = true
-  resource_labels          = var.labels
+  project                     = var.project_id
+  name                        = var.name
+  location                    = var.region
+  network                     = var.network
+  subnetwork                  = var.subnetwork
+  remove_default_node_pool    = true
+  initial_node_count          = 1
+  enable_shielded_nodes       = true
+  enable_intranode_visibility = true
+  deletion_protection         = true
+  resource_labels             = var.labels
 
   private_cluster_config {
     enable_private_nodes    = true
@@ -57,6 +58,16 @@ resource "google_container_cluster" "private" {
 
   ip_allocation_policy {}
 
+  release_channel {
+    channel = "REGULAR"
+  }
+
+  master_auth {
+    client_certificate_config {
+      issue_client_certificate = false
+    }
+  }
+
   network_policy {
     enabled  = true
     provider = "CALICO"
@@ -73,6 +84,11 @@ resource "google_container_node_pool" "private" {
   location   = var.region
   cluster    = google_container_cluster.private.name
   node_count = 1
+
+  management {
+    auto_repair  = true
+    auto_upgrade = true
+  }
 
   node_config {
     service_account = google_service_account.nodes.email

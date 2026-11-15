@@ -1,0 +1,28 @@
+{
+  "azure_old_tls": {
+    "resource_changes": [
+      {
+        "address": "azurerm_linux_web_app.bad",
+        "type": "azurerm_linux_web_app",
+        "change": {
+          "actions": [
+            "create"
+          ],
+          "after": {
+            "https_only": true,
+            "tags": {
+              "Environment": "test",
+              "Owner": "siiick-brain",
+              "Project": "kiln-infra-factory"
+            },
+            "site_config": [
+              {
+                "minimum_tls_version": "1.0"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

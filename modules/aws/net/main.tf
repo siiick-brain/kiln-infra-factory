@@ -17,7 +17,7 @@ resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.this.id
   cidr_block              = each.value.cidr_block
   availability_zone       = each.value.availability_zone
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
   tags                    = merge(var.tags, { Name = "${var.name}-public-${each.key}" })
 }
 
@@ -112,4 +112,10 @@ resource "aws_flow_log" "this" {
   traffic_type         = "ALL"
   vpc_id               = aws_vpc.this.id
   tags                 = merge(var.tags, { Name = "${var.name}-flow-logs" })
+}
+
+# Removes every rule from the VPC default security group so nothing can use it by accident.
+resource "aws_default_security_group" "this" {
+  vpc_id = aws_vpc.this.id
+  tags   = merge(var.tags, { Name = "${var.name}-default-deny" })
 }

@@ -1,0 +1,24 @@
+{
+  "disallowed_region": {
+    "resource_changes": [
+      {
+        "address": "aws_s3_bucket.bad",
+        "type": "aws_s3_bucket",
+        "change": {
+          "actions": [
+            "create"
+          ],
+          "after": {
+            "bucket": "test-bucket",
+            "region": "moon-1",
+            "tags": {
+              "Environment": "test",
+              "Owner": "siiick-brain",
+              "Project": "kiln-infra-factory"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

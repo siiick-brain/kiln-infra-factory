@@ -1,0 +1,18 @@
+{
+  "static_cloud_key": {
+    "resource_changes": [
+      {
+        "address": "google_service_account_key.bad",
+        "type": "google_service_account_key",
+        "change": {
+          "actions": [
+            "create"
+          ],
+          "after": {
+            "service_account_id": "test"
+          }
+        }
+      }
+    ]
+  }
+}
