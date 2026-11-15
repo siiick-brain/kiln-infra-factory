@@ -1,0 +1,148 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TB: docker compose run --rm --no-deps toolbox
+
+jobs:
+  style-and-authorship:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Style check
+        shell: pwsh
+        run: ./scripts/check-style.ps1
+      - name: Style checker tests
+        shell: pwsh
+        run: ./tests/test_style_checker.ps1
+      - name: Single author and no co-author trailers
+        run: |
+          set -euo pipefail
+          allowed="$(cat .github/allowed-author)"
+          bad="$(git log --format='%ae%n%ce' | sort -u | grep -v -x -F -e "$allowed" -e 'noreply@github.com' || true)"
+          if [[ -n "$bad" ]]; then echo "Unexpected author or committer emails found"; exit 1; fi
+          trailers="$(git log --format='%B' | grep -ci '^co-authored-by:' || true)"
+          echo "Co-authored-by trailers: $trailers"
+          [[ "$trailers" -eq 0 ]]
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: gitleaks on tree and history
+        run: |
+          docker run --rm -v "$PWD:/repo" -w /repo zricethezav/gitleaks:v8.28.0@sha256:cdbb7c955abce02001a9f6c9f602fb195b7fadc1e812065883f695d1eeaba854 \
+            git --no-banner --redact --log-opts=--all .
+      - name: Trivy configuration scan
+        run: |
+          docker run --rm -v "$PWD:/repo" -w /repo aquasec/trivy:0.67.2@sha256:e2b22eac59c02003d8749f5b8d9bd073b62e30fefaef5b7c8371204e0a4b0c08 \
+            config --exit-code 1 --severity HIGH,CRITICAL --skip-dirs tests --skip-dirs policies/terraform/fixtures .
+
+  static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Build the toolbox
+        run: docker compose build toolbox
+      - name: Tool versions
+        run: $TB bash scripts/toolbox-versions.sh
+      - name: fmt, validate and terraform test for every module
+        run: $TB bash scripts/test-modules.sh
+      - name: TFLint
+        run: $TB bash scripts/run-tflint.sh
+      - name: Checkov
+        run: $TB checkov --config-file .checkov.yaml -d modules -d live
+      - name: OPA unit tests
+        run: $TB opa test policies/terraform policies/k8s
+      - name: Conftest on HCL
+        run: $TB conftest test --parser hcl2 --namespace terraform --ignore '\.terraform|\.terragrunt-cache' -p policies/terraform modules live
+      - name: Terragrunt validate for every unit
+        run: $TB terragrunt run --all --non-interactive --working-dir live -- validate
+      - name: terraform-docs drift check
+        run: $TB bash -c 'for m in modules/*/*/; do terraform-docs markdown table --output-check --output-file README.md "$m" || exit 1; done'
+      - name: Kubernetes schema and policy
+        run: |
+          $TB kubeconform -strict -summary -ignore-filename-pattern kustomization k8s/base
+          $TB bash -c 'conftest test --policy policies/k8s --namespace k8s k8s/base/[a-z]*.yaml'
+      - name: Shell checks and bats
+        run: $TB bats tests/test_bash_conventions.bats tests/test_commit_hook.bats tests/test_drift_check.bats tests/test_drift_classify.bats tests/test_sops.bats tests/test_migrate_state.bats tests/test_policy_hcl.bats
+      - name: PKI tests
+        run: $TB bats tests/test_pki.bats tests/test_pki_k8s.bats
+
+  emulator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Build and start
+        run: |
+          docker compose build toolbox emulator
+          docker compose up -d emulator
+      - name: State migration and lock refusal
+        run: $TB bash scripts/migrate-state.sh
+      - name: Plan, apply and destroy the dev AWS units
+        run: |
+          $TB bash scripts/bootstrap-state-bucket.sh
+          $TB terragrunt run --all --parallelism 1 --non-interactive --working-dir live/dev/aws -- plan -no-color
+          $TB terragrunt run --all --parallelism 1 --non-interactive --working-dir live/dev/aws -- apply -auto-approve -no-color
+          $TB terragrunt run --all --parallelism 1 --non-interactive --working-dir live/dev/aws -- destroy -auto-approve -no-color
+
+  ansible:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Create a throwaway SSH key outside the repository
+        run: |
+          key_dir="$RUNNER_TEMP/ansible-keys"
+          mkdir -p "$key_dir"
+          ssh-keygen -q -t ed25519 -N '' -f "$key_dir/id_ed25519"
+          {
+            echo "ANSIBLE_KEY_DIR=$key_dir"
+            echo "ANSIBLE_PUBLIC_KEY=$(cat "$key_dir/id_ed25519.pub")"
+          } >> "$GITHUB_ENV"
+      - name: Lint, idempotence and testinfra
+        run: |
+          docker compose build toolbox rocky-target-1 rocky-target-2
+          docker compose up -d rocky-target-1 rocky-target-2
+          $TB bash scripts/test-ansible.sh
+
+  tpm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: TPM tests on swtpm
+        run: |
+          docker compose build toolbox swtpm
+          docker compose up -d swtpm
+          docker compose run --rm -e TPM2TOOLS_TCTI=swtpm:host=swtpm,port=2321 toolbox bats tests/test_tpm.bats

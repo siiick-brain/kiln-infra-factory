@@ -1,0 +1,23 @@
+# Dependabot proposes updates. Workflows never commit. Each proposal is applied by hand in a signed-off commit.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+  - package-ecosystem: docker
+    directories:
+      - /docker/toolbox
+      - /docker/emulator
+      - /docker/swtpm
+      - /docker/rocky-target
+      - /docker/kind-runner
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+  - package-ecosystem: pip
+    directory: /docker/emulator
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
