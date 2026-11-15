@@ -1,0 +1,11 @@
+# Target: rocky-target-1. Date: 2026-11-15
+$ cd /etc/ssh && pwd && ls -la | head -8
+/etc/ssh
+total 580
+drwxr-xr-x 1 root root   4096 Nov 15 11:57 .
+drwxr-xr-x 1 root root   4096 Nov 15 11:59 ..
+-rw-r--r-- 1 root root 541716 Oct 21 12:33 moduli
+-rw------- 1 root root    513 Nov 15 11:57 ssh_host_ecdsa_key
+-rw-r--r-- 1 root root    179 Nov 15 11:57 ssh_host_ecdsa_key.pub
+-rw------- 1 root root    411 Nov 15 11:57 ssh_host_ed25519_key
+-rw-r--r-- 1 root root     99 Nov 15 11:57 ssh_host_ed25519_key.pub

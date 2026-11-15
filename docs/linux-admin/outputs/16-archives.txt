@@ -1,0 +1,5 @@
+# Target: rocky-target-1. Date: 2026-11-15
+$ tar czf /tmp/ssh-config.tgz -C /etc ssh/sshd_config.d && tar tzvf /tmp/ssh-config.tgz
+drwx------ root/root         0 2026-11-15 13:04 ssh/sshd_config.d/
+-rw------- root/root       719 2026-10-21 12:34 ssh/sshd_config.d/50-redhat.conf
+-rw------- root/root       138 2026-11-15 13:04 ssh/sshd_config.d/00-kiln-hardening.conf

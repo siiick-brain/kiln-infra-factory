@@ -1,0 +1,6 @@
+# Target: rocky-target-1. Date: 2026-11-15
+$ stat -c '%a %U %G %n' /etc/ssh/sshd_config /etc/shadow /etc/sudoers.d/* /etc/pki/tls/private 2>&1
+600 root root /etc/ssh/sshd_config
+0 root root /etc/shadow
+440 root root /etc/sudoers.d/ansible
+755 root root /etc/pki/tls/private

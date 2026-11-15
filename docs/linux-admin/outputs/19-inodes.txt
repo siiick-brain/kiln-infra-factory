@@ -1,0 +1,5 @@
+# Target: rocky-target-1. Date: 2026-11-15
+$ ls -li /etc/hostname; ln -sf /etc/hostname /tmp/hostname.link && ls -l /tmp/hostname.link; df -i / | tail -1
+635383 -rw-r--r-- 1 root root 13 Nov 15 11:57 /etc/hostname
+lrwxrwxrwx 1 root root 13 Nov 15 17:01 /tmp/hostname.link -> /etc/hostname
+overlay        67108864 835512 66273352    2% /

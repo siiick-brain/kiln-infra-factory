@@ -1,35 +1,52 @@
-# Linux administration runbook
+# Linux administration
 
-The Rocky targets accept SSH connections from the local toolbox after `.\scripts\new-ansible-key.ps1` creates an external key pair. The private key ACL allows the current Windows user, local administrators and SYSTEM. Run `.\scripts\test-ansible.ps1` to start both targets, apply the Ansible profile, verify a second run reports `changed=0` and run the testinfra checks.
+Exercises against the Rocky Linux 9.8 target. The topic order follows the outline of [linuxupskillchallenge](https://github.com/livialima/linuxupskillchallenge) (CC-BY-4.0). The exercises and notes are this project's own.
 
-The target containers do not run systemd. The playbook validates configuration files and the SSH daemon configuration. Run service management exercises on a Rocky Linux virtual machine for host behavior.
+Run every exercise and save the output:
 
-## Service inspection
+```bash
+docker compose up -d rocky-target-1
+bash scripts/linux-exercises.sh
+```
 
-On a Rocky Linux host, use `systemctl status sshd` to inspect the SSH daemon. Use `systemctl restart sshd` after a reviewed configuration change. Read recent service logs with `journalctl -u sshd --since today`.
+Each file in [outputs/](linux-admin/outputs/) holds the command and its real output with the run date.
 
-The target image runs sshd directly as its container process. It does not provide systemctl or a systemd journal.
+## Limits of the container
 
-## Package updates
+The target runs `sshd` as process 1. There is no systemd, journal, cron daemon, firewalld or auditd. Exercises that need them show what the container has instead and state the gap. Use a Rocky virtual machine for service management, timers and kernel settings. [ansible.md](ansible.md) lists how each gap is checked.
 
-Use `dnf check-update` to list available packages and `dnf updateinfo list security` to inspect security advisories. Apply reviewed updates with `dnf upgrade`. The Ansible profile configures dnf-automatic for security updates. It does not start a systemd timer in the container.
+## Topics
 
-## Accounts and permissions
+| Day | Topic | Exercise | Output |
+|-----|-------|----------|--------|
+| 1 | Get to know the server | Kernel, OS release, CPUs, memory and root filesystem | [01-server](linux-admin/outputs/01-server.txt) |
+| 2 | Navigation | Move into `/etc/ssh` and list it with permissions | [02-navigation](linux-admin/outputs/02-navigation.txt) |
+| 3 | Privilege | `id` and the sudo rules of the `ansible` user | [03-privilege](linux-admin/outputs/03-privilege.txt) |
+| 4 | Installing software | Query installed packages with `rpm -q` | [04-software](linux-admin/outputs/04-software.txt) |
+| 5 | Reading files | Count and preview `/etc/passwd` | [05-paging](linux-admin/outputs/05-paging.txt) |
+| 6 | Editing | Check which editors exist and read the SSH drop-in | [06-editing](linux-admin/outputs/06-editing.txt) |
+| 7 | Services | Process list and effective SSH settings with `sshd -T` | [07-services](linux-admin/outputs/07-services.txt) |
+| 8 | grep and text tools | Find SSH settings with `grep`, list login shells with `awk` | [08-text](linux-admin/outputs/08-text.txt) |
+| 9 | Networking | Resolve the second target, read listening sockets from `/proc/net/tcp` | [09-networking](linux-admin/outputs/09-networking.txt) |
+| 10 | Scheduling | Look for cron directories, read the dnf-automatic settings | [10-scheduling](linux-admin/outputs/10-scheduling.txt) |
+| 11 | Finding things | Recently changed config files and setuid binaries with `find` | [11-finding](linux-admin/outputs/11-finding.txt) |
+| 12 | Transferring files | Copy a file and compare SHA-256 sums | [12-transfer](linux-admin/outputs/12-transfer.txt) |
+| 13 | Users and groups | `getent` and `id` for the automation user | [13-users](linux-admin/outputs/13-users.txt) |
+| 14 | Permissions | Modes and owners of SSH, shadow, sudoers and TLS key paths | [14-permissions](linux-admin/outputs/14-permissions.txt) |
+| 15 | Repositories | List configured repositories and count packages | [15-repositories](linux-admin/outputs/15-repositories.txt) |
+| 16 | Archives | Create and list a compressed tar of the SSH drop-ins | [16-archives](linux-admin/outputs/16-archives.txt) |
+| 17 | Building from source | Check for a compiler | [17-build](linux-admin/outputs/17-build.txt) |
+| 18 | Logs and troubleshooting | Validate rsyslog configuration and list log files | [18-logs](linux-admin/outputs/18-logs.txt) |
+| 19 | Inodes and links | Show an inode number, create a symbolic link, check inode use | [19-inodes](linux-admin/outputs/19-inodes.txt) |
+| 20 | Scripting | A loop that reports whether each managed file is present | [20-scripting](linux-admin/outputs/20-scripting.txt) |
 
-Inspect accounts with `getent passwd ansible` and inspect group membership with `id ansible`. Check file owners and modes with `stat -c '%U %G %a %n' /etc/ssh/sshd_config`. Validate sudo rules with `visudo -c`.
+## Findings from the exercises
 
-The Ansible account has passwordless sudo inside the disposable local targets so the playbook can configure them. Do not copy that container account policy to a shared host without review.
+The first run on 2026-11-15 found two problems in the Ansible roles. Both were fixed with a failing test first.
 
-## SELinux
+| Exercise | Finding | Fix |
+|----------|---------|-----|
+| 7 | `sshd -T` reported `x11forwarding yes` | `ssh_hardening` sets `X11Forwarding no`. testinfra checks the effective value |
+| 10 | `/etc/dnf/automatic.conf` held `upgrade_type` and `apply_updates` twice in `[commands]`. dnf-automatic reads the last value, so the defaults (`default`, `no`) were in effect | `updates` replaces each key in place with `lineinfile`. testinfra parses the section and checks each key appears once |
 
-Use `getenforce` and `sestatus` to inspect SELinux on a Rocky host. Use `ls -Z` to inspect labels and `restorecon -Rv /etc/ssh` to restore default labels after an approved file change. The target container cannot validate host SELinux policy or label enforcement.
-
-## Container limits
-
-The Rocky containers do not validate firewalld behavior. On a Rocky virtual machine, use `firewall-cmd --check-config` and inspect active rules with `firewall-cmd --list-all`.
-
-The containers do not run auditd. On a Rocky virtual machine, use `augenrules --check` to validate audit rules and `auditctl -s` to inspect audit status.
-
-The containers do not apply sysctl changes to the host kernel. Review `/etc/sysctl.d/99-kiln-hardening.conf`, then apply and inspect the values on a disposable Rocky virtual machine with `sysctl --system` and `sysctl net.ipv4.conf.all.accept_redirects`.
-
-These checks do not establish CIS compliance.
+Day 17 is Not verified: the target image has no compiler, by design.

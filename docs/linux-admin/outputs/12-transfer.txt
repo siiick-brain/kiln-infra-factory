@@ -1,0 +1,4 @@
+# Target: rocky-target-1. Date: 2026-11-15
+$ cp /etc/hostname /tmp/hostname.copy && sha256sum /etc/hostname /tmp/hostname.copy
+92b6d2b0b18e548793a0f4a884e68d8d85a2d114d2080a8438ad44eeadabb1e0  /etc/hostname
+92b6d2b0b18e548793a0f4a884e68d8d85a2d114d2080a8438ad44eeadabb1e0  /tmp/hostname.copy

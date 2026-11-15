@@ -3,16 +3,27 @@
     name: dnf-automatic
     state: present
 
-- name: Configure security-only automatic updates
+# An earlier version inserted a block above the default keys. dnf-automatic reads the last value of a
+# duplicated key, so the defaults won. Remove that block so each key appears once.
+- name: Remove the superseded update settings block
   ansible.builtin.blockinfile:
     path: /etc/dnf/automatic.conf
-    insertafter: '^\[commands\]$'
     marker: "# {mark} ANSIBLE MANAGED KILN UPDATE SETTINGS"
-    block: |
-      upgrade_type = security
-      download_updates = True
-      apply_updates = True
-      random_sleep = 0
+    state: absent
+
+- name: Set security-only automatic updates in the commands section
+  ansible.builtin.lineinfile:
+    path: /etc/dnf/automatic.conf
+    regexp: '^{{ item.key }}\s*='
+    line: "{{ item.key }} = {{ item.value }}"
+    insertafter: '^\[commands\]$'
     owner: root
     group: root
     mode: "0644"
+  loop:
+    - { key: upgrade_type, value: security }
+    - { key: download_updates, value: "yes" }
+    - { key: apply_updates, value: "yes" }
+    - { key: random_sleep, value: "0" }
+  loop_control:
+    label: "{{ item.key }}"

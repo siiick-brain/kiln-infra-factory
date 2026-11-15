@@ -1,0 +1,5 @@
+# Target: rocky-target-1. Date: 2026-11-15
+$ getent passwd ansible; id ansible; getent group wheel
+ansible:x:1000:1000::/home/ansible:/bin/bash
+uid=1000(ansible) gid=1000(ansible) groups=1000(ansible)
+wheel:x:10:

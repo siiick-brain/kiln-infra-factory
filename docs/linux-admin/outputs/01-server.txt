@@ -1,0 +1,9 @@
+# Target: rocky-target-1. Date: 2026-11-15
+$ uname -sr; grep -E '^(NAME|VERSION)=' /etc/os-release; nproc; free -m | head -2; df -h / | tail -1
+Linux 6.18.58.1-microsoft-standard-WSL2
+NAME="Rocky Linux"
+VERSION="9.8 (Blue Onyx)"
+8
+               total        used        free      shared  buff/cache   available
+Mem:           15879        6533        1951          49        7686        9346
+overlay        1007G   57G  899G   6% /

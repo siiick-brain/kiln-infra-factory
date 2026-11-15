@@ -1,0 +1,7 @@
+# Target: rocky-target-1. Date: 2026-11-15
+$ rpm -q openssh-server nginx rsyslog dnf-automatic; ls / | tr '\n' ' '
+openssh-server-9.9p1-13.el9_8.rocky.0.1.x86_64
+nginx-1.20.1-28.el9_8.6.rocky.0.1.x86_64
+rsyslog-8.2510.0-2.el9_8.2.x86_64
+dnf-automatic-4.14.0-34.el9_8.rocky.0.1.noarch
+afs bin boot dev etc home lib lib64 media mnt opt proc root run sbin srv sys tmp usr var 
