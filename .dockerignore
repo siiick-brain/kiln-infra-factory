@@ -1,0 +1,10 @@
+.git
+**/.terraform
+**/.terragrunt-cache
+.terraform-plugin-cache
+graphify-out
+artifacts
+private
+.env
+**/__pycache__
+**/.pytest_cache

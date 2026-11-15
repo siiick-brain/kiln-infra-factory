@@ -8,6 +8,8 @@ services:
     working_dir: /workspace
     environment:
       ANSIBLE_CONFIG: /workspace/ansible/ansible.cfg
+      TF_PLUGIN_CACHE_DIR: /workspace/.terraform-plugin-cache
+      TF_PLUGIN_CACHE_MAY_BREAK_DEPENDENCY_LOCK_FILE: "true"
     volumes:
       - .:/workspace
       - type: bind
