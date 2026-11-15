@@ -1,0 +1,9 @@
+.git
+**/.terraform
+**/.terragrunt-cache
+.terraform-plugin-cache
+artifacts
+private
+.env
+**/__pycache__
+**/.pytest_cache
