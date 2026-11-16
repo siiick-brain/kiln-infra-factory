@@ -24,6 +24,11 @@ run "requires_private_nodes_and_identity" {
   }
 
   assert {
+    condition     = google_container_node_pool.private.node_config[0].metadata["disable-legacy-endpoints"] == "true"
+    error_message = "GKE nodes must disable the legacy metadata endpoints."
+  }
+
+  assert {
     condition     = google_container_cluster.private.workload_identity_config[0].workload_pool == "project-test.svc.id.goog"
     error_message = "GKE Workload Identity must be enabled."
   }

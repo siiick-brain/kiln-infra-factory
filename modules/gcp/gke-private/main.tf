@@ -105,6 +105,10 @@ resource "google_container_node_pool" "private" {
       mode = "GKE_METADATA"
     }
 
+    metadata = {
+      disable-legacy-endpoints = "true"
+    }
+
     labels = var.labels
   }
 }
