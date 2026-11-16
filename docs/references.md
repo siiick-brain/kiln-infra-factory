@@ -10,7 +10,7 @@ Upstream release tags, repository licence metadata and last-push timestamps were
 | Checkov | 3.4.0 | Apache-2.0 | [README](https://github.com/bridgecrewio/checkov) and [LICENSE](https://github.com/bridgecrewio/checkov/blob/main/LICENSE) | 2026-10-29 12:38 UTC |
 | OPA | 1.22.0 | Apache-2.0 | [README](https://github.com/open-policy-agent/opa) and [LICENSE](https://github.com/open-policy-agent/opa/blob/main/LICENSE) | 2026-10-30 13:35 UTC |
 | Conftest | 0.71.1 | Apache-2.0 | [README](https://github.com/open-policy-agent/conftest) and [LICENSE](https://github.com/open-policy-agent/conftest/blob/master/LICENSE) | 2026-10-29 16:41 UTC |
-| actions/checkout | v4.2.2 at `11bd71901bbe5b1630ceea73d27597364c9af683` | MIT | [README](https://github.com/actions/checkout/tree/v4.2.2) and [LICENSE](https://github.com/actions/checkout/blob/v4.2.2/LICENSE) | 2026-11-01 |
+| actions/checkout | v7.0.1 at `3d3c42e5aac5ba805825da76410c181273ba90b1` | MIT | [README](https://github.com/actions/checkout/tree/v7.0.1) and [LICENSE](https://github.com/actions/checkout/blob/v7.0.1/LICENSE) | 2026-11-16 |
 | Ansible Core | 2.21.5 | GPL-3.0-or-later | [README](https://github.com/ansible/ansible) and [COPYING](https://github.com/ansible/ansible/blob/devel/COPYING) | 2026-10-28 22:38 UTC |
 | Ansible Lint | 26.10.1 | GPL-3.0-or-later | [README](https://github.com/ansible/ansible-lint) and [COPYING](https://github.com/ansible/ansible-lint/blob/main/COPYING) | 2026-10-30 09:42 UTC |
 | pytest-testinfra | 10.2.2 | Apache-2.0 | [README](https://github.com/pytest-dev/pytest-testinfra/blob/main/README.rst) and [LICENSE](https://github.com/pytest-dev/pytest-testinfra/blob/main/LICENSE) | 2026-07-20 |
