@@ -56,7 +56,7 @@ jobs:
       - name: Trivy configuration scan
         run: |
           docker run --rm -v "$PWD:/repo" -w /repo aquasec/trivy:0.67.2@sha256:e2b22eac59c02003d8749f5b8d9bd073b62e30fefaef5b7c8371204e0a4b0c08 \
-            config --exit-code 1 --severity HIGH,CRITICAL --skip-dirs tests --skip-dirs policies/terraform/fixtures .
+            config --exit-code 1 --severity HIGH,CRITICAL --ignorefile .trivyignore.yaml --skip-dirs tests --skip-dirs policies/terraform/fixtures .
 
   static:
     runs-on: ubuntu-latest
@@ -79,8 +79,6 @@ jobs:
         run: $TB opa test policies/terraform policies/k8s
       - name: Conftest on HCL
         run: $TB conftest test --parser hcl2 --namespace terraform --ignore '\.terraform|\.terragrunt-cache' -p policies/terraform modules live
-      - name: Terragrunt validate for every unit
-        run: $TB terragrunt run --all --non-interactive --working-dir live -- validate
       - name: terraform-docs drift check
         run: $TB bash -c 'for m in modules/*/*/; do terraform-docs markdown table --output-check --output-file README.md "$m" || exit 1; done'
       - name: Kubernetes schema and policy
@@ -108,6 +106,8 @@ jobs:
       - name: Plan, apply and destroy the dev AWS units
         run: |
           $TB bash scripts/bootstrap-state-bucket.sh
+          # validate initialises each unit backend, so it runs here where the emulator bucket exists.
+          $TB terragrunt run --all --non-interactive --working-dir live -- validate
           $TB terragrunt run --all --parallelism 1 --non-interactive --working-dir live/dev/aws -- plan -no-color
           $TB terragrunt run --all --parallelism 1 --non-interactive --working-dir live/dev/aws -- apply -auto-approve -no-color
           $TB terragrunt run --all --parallelism 1 --non-interactive --working-dir live/dev/aws -- destroy -auto-approve -no-color

@@ -1,0 +1,23 @@
+# Accepted Trivy findings. Each entry names the exact path and the reason. A clean scan proves nothing beyond these checks.
+misconfigurations:
+  - id: AVD-DS-0002
+    paths:
+      - docker/rocky-target/Dockerfile
+    statement: The target runs sshd as process 1, which needs root. Ansible connects as the non-root ansible user.
+  - id: AVD-DS-0002
+    paths:
+      - docker/kind-runner/Dockerfile
+    statement: Needs the host Docker socket to create a kind cluster. Local profile only, never in CI. See docs/kubernetes.md.
+  - id: AVD-DS-0002
+    paths:
+      - docker/toolbox/Dockerfile
+    statement: Runs short-lived commands on a bind-mounted workspace whose owner differs per host. A fixed non-root user cannot write the workspace on both Windows and Linux runners.
+  - id: AVD-AWS-0011
+    paths:
+      - modules/aws/cloudfront-static/main.tf
+    statement: WAF is a paid add-on and the origin serves static files only. Same decision as Checkov CKV_AWS_68 in .checkov.yaml.
+  - id: AVD-AWS-0132
+    paths:
+      - modules/aws/cloudfront-static/main.tf
+      - modules/aws/state-bootstrap/main.tf
+    statement: SSE-S3 (AES256) is enforced by policy. Customer managed KMS keys need real key management. Same decision as Checkov CKV_AWS_145.

@@ -58,15 +58,16 @@ if ($Staged) {
     foreach ($name in $names) {
         if (Test-Skipped $name) { continue }
         $full = Join-Path $root $name
-        if (Test-Path -LiteralPath $full -PathType Leaf) { $files.Add((Get-Item -LiteralPath $full)) }
+        if (Test-Path -LiteralPath $full -PathType Leaf) { $files.Add((Get-Item -Force -LiteralPath $full)) }
     }
 } else {
     foreach ($path in $Paths) {
         $resolved = if ([System.IO.Path]::IsPathRooted($path)) { $path } else { Join-Path $root $path }
         if (-not (Test-Path -LiteralPath $resolved)) { continue }
-        $item = Get-Item -LiteralPath $resolved
+        # -Force: on Linux, PowerShell treats dot folders such as .github as hidden.
+        $item = Get-Item -Force -LiteralPath $resolved
         if ($item.PSIsContainer) {
-            Get-ChildItem -LiteralPath $resolved -File -Recurse | Where-Object { -not (Test-Skipped (Get-RelativePath $_.FullName)) } | ForEach-Object { $files.Add($_) }
+            Get-ChildItem -Force -LiteralPath $resolved -File -Recurse | Where-Object { -not (Test-Skipped (Get-RelativePath $_.FullName)) } | ForEach-Object { $files.Add($_) }
         } else {
             $files.Add($item)
         }
