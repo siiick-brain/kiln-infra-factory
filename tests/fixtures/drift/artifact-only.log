@@ -1,0 +1,9 @@
+12:00:00.000 STDOUT [sqs] terraform:   # aws_sqs_queue.main will be updated in-place
+12:00:00.000 STDOUT [sqs] terraform:   ~ resource "aws_sqs_queue" "main" {
+12:00:00.000 STDOUT [sqs] terraform:       ~ redrive_policy                    = jsonencode( # whitespace changes
+12:00:00.000 STDOUT [sqs] terraform:     }
+12:00:00.000 STDOUT [sqs] terraform:   # aws_sqs_queue_policy.main will be updated in-place
+12:00:00.000 STDOUT [sqs] terraform:   ~ resource "aws_sqs_queue_policy" "main" {
+12:00:00.000 STDOUT [sqs] terraform:       ~ policy    = jsonencode(
+12:00:00.000 STDOUT [sqs] terraform:         ) -> (known after apply)
+12:00:00.000 STDOUT [sqs] terraform:     }
