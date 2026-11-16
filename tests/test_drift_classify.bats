@@ -6,6 +6,12 @@ setup() {
   FIX="$BATS_TEST_DIRNAME/fixtures/drift"
 }
 
+@test "every drift fixture is present" {
+  for name in artifact-only bucket-policy redrive-real visibility; do
+    [ -f "$FIX/$name.log" ]
+  done
+}
+
 @test "the SQS whitespace artifact alone is not drift" {
   run bash "$CLASSIFY" "$FIX/artifact-only.log"
   [ "$status" -eq 0 ]

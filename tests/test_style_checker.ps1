@@ -9,7 +9,9 @@ function Invoke-Checker {
     param([string[]]$CheckerArgs)
     $previous = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
-    $out = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $checker @CheckerArgs 2>&1
+    # Run the checker with the same PowerShell that runs this test (powershell.exe is Windows only).
+    $pwshPath = (Get-Process -Id $PID).Path
+    $out = & $pwshPath -NoProfile -ExecutionPolicy Bypass -File $checker @CheckerArgs 2>&1
     $code = $LASTEXITCODE
     $ErrorActionPreference = $previous
     return [pscustomobject]@{ Code = $code; Text = ($out -join "`n") }
@@ -20,7 +22,7 @@ function Assert-Check {
     if ($Condition) { Write-Output "PASS $Name" } else { Write-Output "FAIL $Name"; $script:failed++ }
 }
 
-$emptyAllow = Join-Path $env:TEMP ('style-allow-' + [guid]::NewGuid().ToString('N'))
+$emptyAllow = Join-Path ([IO.Path]::GetTempPath()) ('style-allow-' + [guid]::NewGuid().ToString('N'))
 Set-Content -LiteralPath $emptyAllow -Value '# empty'
 
 $good = Invoke-Checker @('-Paths', (Join-Path $fixtures 'good.md'), '-AllowFile', $emptyAllow)
@@ -36,7 +38,7 @@ Assert-Check 'serial comma reported' ($bad.Text -match 'bad\.md:6 .*serial-comma
 $allowedPath = Join-Path $fixtures 'allowed.md'
 $plain = Invoke-Checker @('-Paths', $allowedPath, '-AllowFile', $emptyAllow)
 Assert-Check 'unlisted serial comma fails' ($plain.Code -eq 1)
-$allowFile = Join-Path $env:TEMP ('style-allow-' + [guid]::NewGuid().ToString('N'))
+$allowFile = Join-Path ([IO.Path]::GetTempPath()) ('style-allow-' + [guid]::NewGuid().ToString('N'))
 Set-Content -LiteralPath $allowFile -Value 'tests/fixtures/style/allowed.md|exact upstream title'
 $allowed = Invoke-Checker @('-Paths', $allowedPath, '-AllowFile', $allowFile)
 Assert-Check 'style-allow entry suppresses the line' ($allowed.Code -eq 0)

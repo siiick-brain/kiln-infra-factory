@@ -77,3 +77,5 @@ finally {
 }
 
 Write-Output 'SOPS example decrypts with the key and fails without it.'
+# The missing-key check leaves a non-zero $LASTEXITCODE, which the Actions pwsh wrapper would report.
+exit 0

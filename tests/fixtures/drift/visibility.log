@@ -1,0 +1,4 @@
+12:00:00.000 STDOUT [sqs] terraform:   # aws_sqs_queue.main will be updated in-place
+12:00:00.000 STDOUT [sqs] terraform:   ~ resource "aws_sqs_queue" "main" {
+12:00:00.000 STDOUT [sqs] terraform:       ~ visibility_timeout_seconds        = 45 -> 60
+12:00:00.000 STDOUT [sqs] terraform:     }

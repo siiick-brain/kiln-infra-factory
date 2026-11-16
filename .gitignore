@@ -32,6 +32,7 @@ private/
 *.srl
 *.zip
 *.log
+!tests/fixtures/**/*.log
 __pycache__/
 .pytest_cache/
 RULES.md
