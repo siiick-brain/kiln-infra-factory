@@ -42,7 +42,7 @@ Conftest denies the bad HCL fixtures (live)
 
 ## terragrunt-plan
 
-Terragrunt run-all for dev, stage and prod (recorded run)
+Terragrunt validate for all three environments, then plan, apply and destroy of the dev AWS units (recorded run). stage and prod apply are Not verified
 
 ![Terragrunt run-all for dev, stage and prod (recorded run)](images/terragrunt-plan.png)
 
