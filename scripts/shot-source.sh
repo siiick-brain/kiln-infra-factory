@@ -31,7 +31,14 @@ case "$1" in
     conftest test --no-color --parser hcl2 --namespace terraform -p policies/terraform \
       policies/terraform/fixtures/hcl | tail -16 || true
     ;;
-  terragrunt-plan) cat "$logs/terragrunt-run-all.log" ;;
+  terragrunt-plan)
+    # Result lines of the dev run: validate for all units, then plan, apply and destroy of the AWS units.
+    for step in dev-validate stage-validate prod-validate dev-aws-plan dev-aws-apply dev-aws-destroy; do
+      echo "== $step"
+      sed 's/\x1b\[[0-9;]*m//g' "$logs/terragrunt/$step.log" |
+        grep -oE '\[[a-z/-]+\] terraform: (Success! The configuration is valid|Plan: [0-9]+ to add.*|Apply complete!.*|Destroy complete!.*)' || true
+    done
+    ;;
   remote-state)
     grep -E 'Successfully configured|migration_probe|verified|refused|Error acquiring' "$logs/migrate-state.log" | head -12
     ;;

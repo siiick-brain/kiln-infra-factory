@@ -49,7 +49,6 @@ $gates = @(
     @{ Id = 1; Skill = 'Terraform modules validate and test for AWS, Azure and GCP'; Log = 'test-modules.log'; Patterns = @('Modules: 17 checked, 0 failed'); Command = 'scripts/test-modules.sh'; Evidence = 'artifacts/logs/test-modules.log' },
     @{ Id = 2; Skill = 'Remote state exists and locking refuses a second apply'; Log = 'migrate-state.log'; Patterns = @('Remote state object verified', 'Concurrent apply refused'); Command = 'scripts/migrate-state.sh'; Evidence = 'artifacts/logs/migrate-state.log' },
     @{ Id = 4; Skill = 'Promotion succeeds dev to stage and prod refuses a mismatched pin'; Log = 'test-promote.log'; Patterns = @('Promotion tests passed'); Command = 'tests/test_promote.ps1'; Evidence = 'artifacts/logs/test-promote.log (gate commands stubbed)' },
-    @{ Id = 5; Skill = 'Terragrunt run-all passes'; Log = 'terragrunt-run-all.log'; Patterns = @('validate=0', 'plan=0', 'apply=0', 'destroy=0'); Command = 'scripts/terragrunt-run-all.sh'; Evidence = 'artifacts/logs/terragrunt-run-all.log' },
     @{ Id = 6; Skill = 'Azure networking and hosting pass validate, mock tests and policies'; Log = 'test-modules.log'; Patterns = @('PASS modules/azure/net-hub-spoke', 'PASS modules/azure/hosting'); Command = 'scripts/test-modules.sh, opa test, conftest'; Evidence = 'artifacts/logs/test-modules.log' },
     @{ Id = 8; Skill = 'GCP GKE and log sink modules pass validate, mock tests and policies'; Log = 'test-modules.log'; Patterns = @('PASS modules/gcp/gke-private', 'PASS modules/gcp/log-sinks'); Command = 'scripts/test-modules.sh'; Evidence = 'artifacts/logs/test-modules.log' },
     @{ Id = 9; Skill = 'Ansible runs, second run changed=0 and tests pass'; Log = 'test-ansible.log'; Patterns = @('changed=0\s+unreachable=0\s+failed=0', '\d+ passed'); Command = 'scripts/test-ansible.ps1'; Evidence = 'artifacts/logs/test-ansible.log' },
@@ -79,6 +78,30 @@ if ($null -eq $drift) {
 } else {
     Add-Row 3 'Drift detected with exit code 2 then cleared' 'Fail' 'artifacts/logs/drift-demo.log' 'scripts/drift-demo.sh'
 }
+
+# Row 5: Terragrunt run-all. Read each step log written by scripts/terragrunt-run-all.sh.
+function Test-Step([string]$name, [string]$pattern, [int]$min) {
+    $text = Read-Log "terragrunt\$name.log"
+    if ($null -eq $text) { return 'missing' }
+    # dev-validate is the first step of a run. A step log older than it belongs to an earlier run.
+    $first = Join-Path $logs 'terragrunt\dev-validate.log'
+    $this = Join-Path $logs "terragrunt\$name.log"
+    if ((Get-Item -LiteralPath $this).LastWriteTime -lt (Get-Item -LiteralPath $first).LastWriteTime) { return 'stale' }
+    $clean = $text -replace ([string][char]27 + '\[[0-9;]*m'), ''
+    if ($clean -match '(?m)^\S+ ERROR ') { return 'fail' }
+    if (([regex]::Matches($clean, $pattern)).Count -ge $min) { return 'pass' }
+    return 'incomplete'
+}
+$steps = [ordered]@{}
+foreach ($e in 'dev', 'stage', 'prod') {
+    $steps["$e validate"] = Test-Step "$e-validate" 'Success! The configuration is valid' 7
+    $steps["$e plan"] = Test-Step "$e-aws-plan" '(Plan: \d+ to add|No changes)' 4
+    $steps["$e apply"] = Test-Step "$e-aws-apply" 'Apply complete!' 4
+    $steps["$e destroy"] = Test-Step "$e-aws-destroy" 'Destroy complete!' 4
+}
+$stepText = ($steps.Keys | ForEach-Object { "$_ $($steps[$_])" }) -join ', '
+$rowStatus = if (@($steps.Values | Where-Object { $_ -eq 'fail' }).Count -gt 0) { 'Fail' } elseif (@($steps.Values | Where-Object { $_ -ne 'pass' }).Count -eq 0) { 'Pass' } else { 'Not verified' }
+Add-Row 5 'Terragrunt run-all passes' $rowStatus $stepText 'scripts/terragrunt-run-all.sh'
 
 # Row 7: Lambda and SQS on the emulator.
 $lambda = Test-LogMatch 'lambda-sqs-e2e.log' @('PASS message reached the function')
