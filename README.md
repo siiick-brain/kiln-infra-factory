@@ -21,7 +21,7 @@ flowchart LR
     tb["toolbox<br/>pinned IaC and policy tools"]
     moto["emulator<br/>Moto 5.2.5"]
     sw["swtpm<br/>software TPM"]
-    rocky["Rocky Linux 9.8 targets"]
+    rocky["Rocky Linux 10.2 targets"]
     kind["kind-runner<br/>local only"]
   end
   mods --> live -->|plan, apply, destroy| tb

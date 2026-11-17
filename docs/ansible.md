@@ -1,6 +1,6 @@
 # Ansible and Rocky Linux
 
-`ansible/site.yml` configures two Rocky Linux 9.8 containers built from `docker/rocky-target`. Each container runs `sshd` as its main process and has a non-root `ansible` user. The SSH key pair is created at run time by `scripts/new-ansible-key.ps1` outside the repository.
+`ansible/site.yml` configures two Rocky Linux 10.2 containers built from `docker/rocky-target`. Each container runs `sshd` as its main process and has a non-root `ansible` user. The SSH key pair is created at run time by `scripts/new-ansible-key.ps1` outside the repository.
 
 ## Roles
 

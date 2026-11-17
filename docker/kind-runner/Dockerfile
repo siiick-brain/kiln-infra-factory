@@ -1,6 +1,6 @@
 # Local-only runner for item 16. It mounts the host Docker socket, which gives it control of the
 # host Docker daemon. Never run it in CI or on a shared host. See docs/kubernetes.md.
-FROM docker:27.5.1-cli@sha256:851f91d241214e7c6db86513b270d58776379aacc5eb9c4a87e5b47115e3065c
+FROM docker:29.9.3-cli@sha256:5a7af0dcb0e46c803efe9b45371dd21cb500e5b4453250394ac6f06d49b6e6f1
 
 ARG KIND_VERSION=0.29.0
 ARG KUBECTL_VERSION=1.33.1

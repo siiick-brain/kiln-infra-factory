@@ -62,9 +62,10 @@ Each project was read for its README and licence before use. No text or code was
 
 ## Container image references
 
-- Toolbox and Moto base: [`python:3.12-slim-trixie@sha256:1148dbb014615300fa7e713b2f94f550c0d1c69780c0805f84f093ceee34dd0b`](https://hub.docker.com/layers/library/python/3.12-slim-trixie/images/sha256-1148dbb014615300fa7e713b2f94f550c0d1c69780c0805f84f093ceee34dd0b)
-- swtpm base: [`debian:trixie-slim@sha256:1e1a22175fbf1b32157ddaf0219e1db4e5401fab2b94ed285add64d18587cd2d`](https://hub.docker.com/layers/library/debian/trixie-slim/images/sha256-1e1a22175fbf1b32157ddaf0219e1db4e5401fab2b94ed285add64d18587cd2d)
-- Rocky Linux targets: [`quay.io/rockylinux/rockylinux:9.8@sha256:8101994123cf3d0a8fee517bee7f39e555c7d92bd2d9eb3303cc988a0eeed00f`](https://quay.io/repository/rockylinux/rockylinux?tab=tags)
-- kind-runner base: [`docker:27.5.1-cli@sha256:851f91d241214e7c6db86513b270d58776379aacc5eb9c4a87e5b47115e3065c`](https://hub.docker.com/_/docker)
+- Toolbox base: [`python:3.12-slim-trixie@sha256:1148dbb014615300fa7e713b2f94f550c0d1c69780c0805f84f093ceee34dd0b`](https://hub.docker.com/layers/library/python/3.12-slim-trixie/images/sha256-1148dbb014615300fa7e713b2f94f550c0d1c69780c0805f84f093ceee34dd0b). It stays on 3.12 until pycares, a Checkov dependency, publishes Python 3.15 wheels.
+- Moto base: [`python:3.15-slim-trixie@sha256:65a65fc7b30b06cb6df4930fd4650697cb23f4c2698ab81fc87e4b031bc36928`](https://hub.docker.com/layers/library/python/3.15-slim-trixie/images/sha256-65a65fc7b30b06cb6df4930fd4650697cb23f4c2698ab81fc87e4b031bc36928)
+- swtpm base: [`debian:trixie-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2`](https://hub.docker.com/layers/library/debian/trixie-slim/images/sha256-a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2)
+- Rocky Linux targets: [`quay.io/rockylinux/rockylinux:10.2@sha256:827d37bc128288ccf160ee318bb3cb92d591164cb217e92f8bc61e3982ae1834`](https://quay.io/repository/rockylinux/rockylinux?tab=tags)
+- kind-runner base: [`docker:29.9.3-cli@sha256:5a7af0dcb0e46c803efe9b45371dd21cb500e5b4453250394ac6f06d49b6e6f1`](https://hub.docker.com/_/docker)
 - kind node: [`kindest/node:v1.33.1@sha256:050072256b9a903bd914c0b2866828150cb229cea0efe5892e2b644d5dd3b34f`](https://hub.docker.com/r/kindest/node)
 - Sample workload: [`nginxinc/nginx-unprivileged:1.27.5-alpine@sha256:65e3e85dbaed8ba248841d9d58a899b6197106c23cb0ff1a132b7bfe0547e4c0`](https://hub.docker.com/r/nginxinc/nginx-unprivileged)

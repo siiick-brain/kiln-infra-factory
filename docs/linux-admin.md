@@ -1,6 +1,6 @@
 # Linux administration
 
-Exercises against the Rocky Linux 9.8 target. The topic order follows the outline of [linuxupskillchallenge](https://github.com/livialima/linuxupskillchallenge) (CC-BY-4.0). The exercises and notes are this project's own.
+Exercises against the Rocky Linux target. The outputs were captured on Rocky Linux 9.8. The target now runs 10.2. The topic order follows the outline of [linuxupskillchallenge](https://github.com/livialima/linuxupskillchallenge) (CC-BY-4.0). The exercises and notes are this project's own.
 
 Run every exercise and save the output:
 
