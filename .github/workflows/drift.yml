@@ -18,7 +18,10 @@ jobs:
           persist-credentials: false
 
       - name: Start the local emulator
-        run: docker compose up -d emulator
+        run: |
+          # compose.yml points TF_PLUGIN_CACHE_DIR here. Terraform warns when it is missing.
+          mkdir -p .terraform-plugin-cache
+          docker compose up -d emulator
 
       - name: Create the local state bucket
         run: docker compose run --rm --no-deps toolbox bash scripts/bootstrap-state-bucket.sh

@@ -99,6 +99,8 @@ jobs:
           persist-credentials: false
       - name: Build and start
         run: |
+          # compose.yml points TF_PLUGIN_CACHE_DIR here. Terraform warns when it is missing.
+          mkdir -p .terraform-plugin-cache
           docker compose build toolbox emulator
           docker compose up -d emulator
       - name: State migration and lock refusal

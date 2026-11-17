@@ -1,5 +1,7 @@
 # kiln-infra-factory
 
+[![CI](https://github.com/siiick-brain/kiln-infra-factory/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/siiick-brain/kiln-infra-factory/actions/workflows/ci.yml)
+
 Terraform modules for AWS, Azure and GCP with Terragrunt promotion, drift detection, policy as code, Ansible hardening, a two-tier PKI and a software TPM, each with runnable proof on local containers.
 
 **Nothing in this repository was applied to a real cloud account.** AWS modules were applied only to the Moto emulator. Azure and GCP modules were checked with `terraform validate`, mock-provider tests, TFLint, Checkov and OPA. Real deployment is listed under Roadmap.
