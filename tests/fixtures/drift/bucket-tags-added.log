@@ -1,0 +1,14 @@
+12:00:00.000 STDOUT [state-bootstrap] terraform:   # aws_s3_bucket.state will be updated in-place
+12:00:00.000 STDOUT [state-bootstrap] terraform:   ~ resource "aws_s3_bucket" "state" {
+12:00:00.000 STDOUT [state-bootstrap] terraform:         id                          = "kiln-state-bootstrap-dev"
+12:00:00.000 STDOUT [state-bootstrap] terraform:       ~ tags                        = {
+12:00:00.000 STDOUT [state-bootstrap] terraform:           + "Environment" = "dev"
+12:00:00.000 STDOUT [state-bootstrap] terraform:           + "Owner"       = "siiick-brain"
+12:00:00.000 STDOUT [state-bootstrap] terraform:           + "Project"     = "kiln-infra-factory"
+12:00:00.000 STDOUT [state-bootstrap] terraform:         }
+12:00:00.000 STDOUT [state-bootstrap] terraform:       ~ tags_all                    = {
+12:00:00.000 STDOUT [state-bootstrap] terraform:           + "Environment" = "dev"
+12:00:00.000 STDOUT [state-bootstrap] terraform:           + "Owner"       = "siiick-brain"
+12:00:00.000 STDOUT [state-bootstrap] terraform:           + "Project"     = "kiln-infra-factory"
+12:00:00.000 STDOUT [state-bootstrap] terraform:         }
+12:00:00.000 STDOUT [state-bootstrap] terraform:     }

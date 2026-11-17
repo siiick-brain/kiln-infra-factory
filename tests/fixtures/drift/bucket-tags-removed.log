@@ -1,0 +1,7 @@
+12:00:00.000 STDOUT [state-bootstrap] terraform:   # aws_s3_bucket.state will be updated in-place
+12:00:00.000 STDOUT [state-bootstrap] terraform:   ~ resource "aws_s3_bucket" "state" {
+12:00:00.000 STDOUT [state-bootstrap] terraform:       ~ tags                        = {
+12:00:00.000 STDOUT [state-bootstrap] terraform:           + "Environment" = "dev"
+12:00:00.000 STDOUT [state-bootstrap] terraform:           - "CostCentre"  = "1234" -> null
+12:00:00.000 STDOUT [state-bootstrap] terraform:         }
+12:00:00.000 STDOUT [state-bootstrap] terraform:     }

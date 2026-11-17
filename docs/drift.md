@@ -26,14 +26,17 @@ docker compose run --rm --no-deps toolbox bash scripts/drift-demo.sh
 
 The endpoint and the `testing` credentials are local emulator values. No cloud account is involved.
 
-## The emulator artifact
+## The emulator artifacts
 
 Moto returns queue policy JSON with a space after each separator. AWS returns it compact. The AWS provider therefore reports a whitespace-only change on `redrive_policy` and recomputes the dependent queue policy on every plan. Exit code 0 is never reached on the emulator, even with no real change.
 
-`scripts/drift-classify.sh` separates that artifact from real drift. It ignores exactly two things:
+AWS provider 6.x sends bucket tags inside the `CreateBucket` request. Moto 5.2.5 reads only `LocationConstraint` from that request and drops the tags, so `GetBucketTagging` returns `NoSuchTagSet` and the first plan after a fresh apply adds every tag back. The next apply sets them with `PutBucketTagging`, which Moto stores.
+
+`scripts/drift-classify.sh` separates those artifacts from real drift. It ignores exactly these:
 
 - `redrive_policy` on `aws_sqs_queue` when Terraform marks the line `# whitespace changes`
 - `policy` on `aws_sqs_queue_policy`
+- `tags` and `tags_all` on `aws_s3_bucket` when every entry in the diff is an addition. A changed or removed tag is drift
 
 Every other changed attribute counts as drift, including a `policy` on a bucket or an IAM role. `tests/test_drift_classify.bats` proves both sides. Use the classifier only against emulator plans. Against real AWS every change is drift.
 
@@ -44,7 +47,7 @@ Log: `artifacts/logs/drift-demo.log` and the step logs in `artifacts/logs/drift-
 | Step | Result |
 |------|--------|
 | Baseline apply | PASS |
-| Check after apply | exit 2. Besides the artifact, the state bucket showed a `tags` change that disappeared after the next apply. Recorded as an emulator first-apply effect, Not verified |
+| Check after apply | exit 2. Besides the whitespace artifact, the state bucket showed a `tags` change that disappeared after the next apply. Explained on 2026-11-17: Moto drops tags sent in `CreateBucket` (see above) |
 | Out-of-band change | PASS |
 | Check after the change | PASS: exit 2 with `visibility_timeout_seconds 45 -> 60` |
 | Remediation apply | PASS |
