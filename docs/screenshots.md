@@ -2,7 +2,7 @@
 
 Each image is rendered by `scripts/terminal_shot.py` from the real output and exit code of the command shown at its top. Text is not edited except redaction of emails, tokens, account IDs and URLs. The footer states how many values were redacted. "Recorded run" images show lines from a log in `artifacts/logs` written by the named run. `scripts/capture-all.ps1` renders them all again.
 
-Public GitHub page captures (CI, drift workflow, README and contributors) are Not verified until the repository is public. The architecture explainer video is Not verified.
+The public GitHub pages at the end are captured unedited by `scripts/capture_github.py` (Playwright, signed out, 1440 by 900). The architecture explainer video is Not verified.
 
 ## tb-versions
 
@@ -141,3 +141,37 @@ gitleaks on history and tree (live)
 Skills gate (live)
 
 ![Skills gate (live)](images/skills-report.png)
+
+## GitHub pages
+
+Captured on 2026-11-18 with `python scripts/capture_github.py`, signed out.
+
+### github-ci-green
+
+CI runs on main. The latest run is green. Earlier failures stay in the history
+
+![CI runs on main](images/github-ci-green.png)
+
+### github-drift-workflow
+
+Emulator drift workflow on main. The latest run is green, after the bucket tag artifact was classified
+
+![Emulator drift workflow on main](images/github-drift-workflow.png)
+
+### github-readme-top
+
+Repository page with description and topics
+
+![Repository page](images/github-readme-top.png)
+
+### github-readme-architecture
+
+Architecture diagram as GitHub renders the README
+
+![README architecture section](images/github-readme-architecture.png)
+
+### github-contributors
+
+Contributors graph: one author
+
+![Contributors graph](images/github-contributors.png)

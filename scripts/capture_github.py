@@ -7,6 +7,7 @@ Usage: python scripts/capture_github.py [name ...]
 Names: ci-green, drift-workflow, readme-top, readme-architecture, contributors (default: all)
 """
 
+import re
 import sys
 from pathlib import Path
 
@@ -59,10 +60,27 @@ def main(argv: list[str]) -> int:
                     raise RuntimeError(f"HTTP {status}")
                 page.locator("main").first.wait_for(timeout=30_000)
                 if anchor:
-                    heading = page.get_by_role("heading", name=anchor, exact=True).first
-                    heading.wait_for(timeout=30_000)
-                    heading.evaluate("el => el.scrollIntoView({block: 'start'})")
-                    page.evaluate("window.scrollBy(0, -16)")
+                    # Only the rendered README. GitHub also keeps hidden copies of headings.
+                    heading = page.locator("article.markdown-body h2").filter(
+                        has_text=re.compile(rf"^\s*{re.escape(anchor)}\s*$")
+                    ).first
+                    heading.wait_for(state="visible", timeout=30_000)
+                    heading.scroll_into_view_if_needed()
+                    top = heading.evaluate("el => el.getBoundingClientRect().top + window.scrollY")
+                    # Leave room for the sticky README tab bar above the heading.
+                    page.evaluate(f"window.scrollTo(0, {top} - 72)")
+                if name == "contributors":
+                    # The graph renders after GitHub computes it. Reload until the spinner is gone.
+                    for _ in range(6):
+                        page.wait_for_timeout(3_000)
+                        # The spinner text stays in the DOM, hidden, once the graph is drawn.
+                        if not page.get_by_text("Crunching the latest data").first.is_visible():
+                            break
+                        page.wait_for_timeout(10_000)
+                        page.reload(wait_until="load")
+                    else:
+                        raise RuntimeError("contributors graph still loading after 60 seconds")
+                    page.locator("main svg").first.wait_for(timeout=30_000)
                 page.wait_for_timeout(1_500)
                 page.screenshot(path=str(target))
                 print(f"PASS {name} -> {target.relative_to(OUT.parent.parent).as_posix()}")

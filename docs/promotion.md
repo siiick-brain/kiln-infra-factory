@@ -25,4 +25,6 @@ Rollback by reverting the commit that changed the target pin:
 git revert <promotion-commit>
 ```
 
-Promotion unit tests replace Docker with a fake executable. They verify gate ordering, failure handling and the prod pin check. Full gate execution is not verified because the toolbox image build is paused.
+Promotion unit tests replace Docker with a fake executable. They verify gate ordering, failure handling, the prod pin check and that no gate runs in a login shell.
+
+A real run on 2026-11-18 (`.\scripts\promote.ps1 -From dev -To stage`, log `artifacts/logs/promotion-dev-stage.log`) ran all seven gates against the toolbox and the emulator and updated the stage pin in 39 minutes. The first real run found that `bash -lc` hid the toolbox venv from the Checkov gate, fixed in `scripts/promote.ps1`.

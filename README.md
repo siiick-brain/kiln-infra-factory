@@ -57,10 +57,10 @@ All runs on 2026-11-15 on a Windows 11 workstation with Docker Desktop 29.9.2. L
 | OPA unit tests | `opa test policies/terraform policies/k8s` | 34 of 34 passed |
 | Conftest on HCL | `conftest test --parser hcl2 --namespace terraform` | 3861 checks passed on modules and live. The bad fixtures produce 12 denials |
 | Kubernetes | `kubeconform`, `conftest`, `k8s/kind-apply.sh` | 6 resources valid. 72 Conftest checks passed. kind: 7 PASS, pods run as uid 101 on a read-only root filesystem |
-| Terragrunt run-all | `scripts/terragrunt-run-all.sh` | validate passed for all 21 units in dev, stage and prod. dev AWS units: plan, apply and destroy passed on Moto. stage and prod plan, apply and destroy Not verified: one environment took about 4 hours on the Windows bind mount |
+| Terragrunt run-all | `scripts/terragrunt-run-all.sh` | Run on 2026-11-17: validate passed for all 21 units. Plan, apply and destroy passed for the AWS units of dev, stage and prod on Moto in one 41 minute run. Earlier stage and prod applies hung for hours because Moto does not return `RedriveAllowPolicy`. See [ADR 0001](docs/adr/0001-emulator-choice.md) |
 | Remote state | `scripts/migrate-state.sh` | Local state migrated to the emulator bucket. A second concurrent apply was refused by the lock |
 | Drift | `scripts/drift-demo.sh` | See [drift results](#drift-results) |
-| Promotion | `tests/test_promote.ps1` | Passed with stubbed gate commands. dev to stage edits the pin. prod refuses a pin that stage does not run |
+| Promotion | `scripts/promote.ps1 -From dev -To stage` | 2026-11-18: all seven gates passed against the toolbox and Moto, then the stage pin was written. `tests/test_promote.ps1` covers gate order, failure handling and the prod pin check |
 | Ansible | `scripts/test-ansible.ps1` | ansible-lint production profile: 0 failures. Second run changed=0 on both targets. testinfra: 16 passed |
 | PKI | `bats tests/test_pki.bats` | 12 of 12: chain, wrong CA, expired, CRL revoked, OCSP revoked and good, rotation, expiry monitor, repository path guard |
 | PKI deploy | `scripts/test-pki-deploy.sh` | 5 of 5: new serial served by nginx, master PID unchanged on reload |
@@ -72,7 +72,7 @@ All runs on 2026-11-15 on a Windows 11 workstation with Docker Desktop 29.9.2. L
 
 ### Drift results
 
-`scripts/drift-demo.sh` changes the `dev-events` visibility timeout to 45 seconds out of band. The drift check exits 2 and the plan shows `visibility_timeout_seconds 45 -> 60`. The remediation apply removes that change from the plan. A clean exit 0 is **Not verified**: Moto returns queue policy JSON with spaces after separators, so the AWS provider reports a whitespace-only change on `redrive_policy` on every plan.
+`scripts/drift-demo.sh` changes the `dev-events` visibility timeout to 45 seconds out of band. The drift check exits 2 and the plan shows `visibility_timeout_seconds 45 -> 60`. The remediation apply removes that change from the plan. A clean exit 0 is **Not verified**: Moto returns queue policy JSON with spaces after separators, so the AWS provider reports a whitespace-only change on `redrive_policy` on every plan. Moto also drops bucket tags sent in `CreateBucket`. `scripts/drift-classify.sh` separates exactly those two artifacts from real drift. The scheduled drift workflow passes on main with it. See [docs/drift.md](docs/drift.md).
 
 ## Screenshots
 
@@ -93,14 +93,14 @@ Rendered from real command output. The full set is in [docs/screenshots.md](docs
 | GCP modules | validate, mock tests, TFLint, Checkov, OPA | Static and mock only. Not deployed |
 | CloudFront | validate and mock tests. Moto has no CloudFront | Mock only |
 | Lambda receives SQS messages | Apply to Moto | Not verified end to end |
-| Drift exit 0 after remediation | Emulator | Not verified (Moto JSON whitespace) |
-| Terragrunt apply and destroy in stage and prod | Run stopped after dev for time | Not verified |
-| Promotion with real gates | Stubbed gate test | Gates individually Verified. A full real promotion run is Not verified |
+| Drift exit 0 after remediation | Emulator and the drift workflow | Classifier exit 0 Verified on main. Raw plan exit 0 Not verified (two Moto artifacts) |
+| Terragrunt apply and destroy in stage and prod | `scripts/terragrunt-run-all.sh` on Moto | Verified on the emulator (2026-11-17) |
+| Promotion with real gates | `scripts/promote.ps1` dev to stage | Verified on the emulator (2026-11-18) |
 | Ansible hardening | Two Rocky containers | Verified for files and sshd. firewalld, auditd and kernel parameters Not verified |
 | PKI, OCSP and rotation | OpenSSL in containers | Verified |
 | TPM | swtpm | Verified on a software TPM. Not a hardware root of trust |
 | Kubernetes | kind | Verified. NetworkPolicy enforcement Not verified |
-| CI workflows | Written, not run | Not verified until the repository is pushed |
+| CI workflows | GitHub Actions on every push to main | Verified. CI and Encrypted example pass on main |
 | Explainer video | Not produced | Not verified |
 
 ## Controls and limits
