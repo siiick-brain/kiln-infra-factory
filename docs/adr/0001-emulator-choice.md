@@ -20,7 +20,7 @@ Terraform's emulator provider configuration uses fake local credentials. No modu
 
 - Moto covers the required AWS APIs at the level of its documented implementations. Unsupported or incomplete operations remain outside the emulator claim.
 - CloudFront features in `cloudfront-static`, including OAC, TLS, response headers and edge delivery, are validated and tested with mocked providers only.
-- Moto 5.2.5 did not return the `RedriveAllowPolicy` attribute from SQS `GetQueueAttributes` during the local apply attempt. The dev Terragrunt units disable only the explicit DLQ source restriction because Terraform waits for that missing attribute. The modules keep this policy enabled by default. Module tests cover the default. Emulator apply does not verify this restriction.
+- Moto 5.2.5 did not return the `RedriveAllowPolicy` attribute from SQS `GetQueueAttributes` during the local apply attempt. Each `live/<env>/env.hcl` sets `emulator = true`. The SQS and Lambda units pass `enable_redrive_allow_policy = !local.env.emulator`. Only the explicit DLQ source restriction is off on the emulator. Before 2026-11-17 only dev did this. Stage and prod applies waited 20 minutes for the attribute and then failed. The modules keep this policy enabled by default. Module tests cover the default. Emulator apply does not verify this restriction.
 - Azure and GCP modules are validated and tested with mocked providers only.
 - Real IAM evaluation, AWS networking behavior, Lambda execution fidelity and service availability are not verified by Moto tests.
 - No emulator result proves that a real cloud deployment is safe or ready.

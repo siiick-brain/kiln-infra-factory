@@ -11,8 +11,9 @@ terraform {
 }
 
 inputs = {
-  function_name               = "dev-consumer"
-  reserved_concurrency        = 3
-  enable_redrive_allow_policy = false
+  function_name        = "dev-consumer"
+  reserved_concurrency = 3
+  # Moto does not return RedriveAllowPolicy, so Terraform would wait for it. See ADR 0001.
+  enable_redrive_allow_policy = !local.env.emulator
   tags                        = local.env.tags
 }

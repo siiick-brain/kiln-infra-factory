@@ -11,7 +11,8 @@ terraform {
 }
 
 inputs = {
-  name                        = "dev-events"
-  enable_redrive_allow_policy = false
+  name = "dev-events"
+  # Moto does not return RedriveAllowPolicy, so Terraform would wait for it. See ADR 0001.
+  enable_redrive_allow_policy = !local.env.emulator
   tags                        = local.env.tags
 }
