@@ -159,8 +159,8 @@ try {
     $style = $LASTEXITCODE
 } finally { Pop-Location; $ErrorActionPreference = 'Stop' }
 $hyg = ($emails.Count -eq 1 -and $emails[0] -eq $allowed -and $names.Count -eq 1 -and $coauthors -eq 0 -and $tracked.Count -eq 0 -and $leakHistory -eq 0 -and $leakTree -eq 0 -and $style -eq 0)
-$hygEvidence = "authors=$($names.Count) emails=$($emails.Count) coauthored=$coauthors tracked-tooling=$($tracked.Count) gitleaks-history=$leakHistory gitleaks-tree=$leakTree style=$style"
-Add-Row 23 'Hygiene: one author, no co-author trailers, no tooling or key files, gitleaks clean, style clean' ($(if ($hyg) { 'Pass' } else { 'Fail' })) $hygEvidence 'git log, gitleaks, scripts/check-style.ps1'
+$hygEvidence = "authors=$($names.Count) emails=$($emails.Count) coauthored=$coauthors tracked-private=$($tracked.Count) gitleaks-history=$leakHistory gitleaks-tree=$leakTree style=$style"
+Add-Row 23 'Hygiene: one author, no co-author trailers, no private or key files, gitleaks clean, style clean' ($(if ($hyg) { 'Pass' } else { 'Fail' })) $hygEvidence 'git log, gitleaks, scripts/check-style.ps1'
 
 # Row 24: private evidence files.
 $private = @('private\plan.md', 'private\tdd-log.md', 'private\skills-and-tools.md', 'private\reviews')
