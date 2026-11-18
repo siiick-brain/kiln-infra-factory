@@ -109,7 +109,8 @@ jobs:
         run: |
           $TB bash scripts/bootstrap-state-bucket.sh
           # validate initialises each unit backend, so it runs here where the emulator bucket exists.
-          $TB terragrunt run --all --non-interactive --working-dir live -- validate
+          # Serial: the shared plugin cache is not safe for concurrent terraform init.
+          $TB terragrunt run --all --parallelism 1 --non-interactive --working-dir live -- validate
           $TB terragrunt run --all --parallelism 1 --non-interactive --working-dir live/dev/aws -- plan -no-color
           $TB terragrunt run --all --parallelism 1 --non-interactive --working-dir live/dev/aws -- apply -auto-approve -no-color
           $TB terragrunt run --all --parallelism 1 --non-interactive --working-dir live/dev/aws -- destroy -auto-approve -no-color
