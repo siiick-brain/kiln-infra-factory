@@ -148,13 +148,13 @@ Captured on 2026-11-18 with `python scripts/capture_github.py`, signed out.
 
 ### github-ci-green
 
-CI runs on main. The latest run is green. Earlier failures stay in the history
+CI runs on main
 
 ![CI runs on main](images/github-ci-green.png)
 
 ### github-drift-workflow
 
-Emulator drift workflow on main. The latest run is green, after the bucket tag artifact was classified
+Emulator drift workflow on main
 
 ![Emulator drift workflow on main](images/github-drift-workflow.png)
 
