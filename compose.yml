@@ -22,7 +22,8 @@ services:
     build:
       context: .
       dockerfile: docker/emulator/Dockerfile
-    # No Docker socket: Moto stores Lambda functions but does not run them. See docs/drift.md and ADR 0001.
+    # No Docker socket: Moto stores Lambda functions but does not run them. compose.lambda.yml is the
+    # opt-in override for scripts/lambda-sqs-e2e.sh. See ADR 0001.
     environment:
       MOTO_PORT: "5000"
     ports:

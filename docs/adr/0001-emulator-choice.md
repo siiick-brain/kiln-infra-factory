@@ -12,7 +12,7 @@ Moto is Apache-2.0 licensed and its documented service list includes S3, SQS, La
 
 ## Decision
 
-Use Moto server 5.2.5 in a locally built container. Pin the Python base image by digest and bind its public endpoint to localhost. The Compose service mounts the Docker socket only because Moto runs Lambda code in Docker containers. Do not mount cloud credentials.
+Use Moto server 5.2.5 in a locally built container. Pin the Python base image by digest and bind its public endpoint to localhost. The default Compose service has no Docker socket, so Moto stores Lambda functions but does not run them. `compose.lambda.yml` is an opt-in override that mounts the socket and runs the emulator as root so Moto can start a pinned lambci-compatible runtime image. Use it only for `scripts/lambda-sqs-e2e.sh` on a single-user workstation, never in CI or on a shared host. Do not mount cloud credentials.
 
 Terraform's emulator provider configuration uses fake local credentials. No module is applied to a real AWS account.
 

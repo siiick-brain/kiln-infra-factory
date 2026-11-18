@@ -1,0 +1,15 @@
+# Opt-in override that lets Moto run Lambda code. Use it only for scripts/lambda-sqs-e2e.sh:
+#   docker compose -f compose.yml -f compose.lambda.yml up -d emulator
+# It mounts the host Docker socket, which gives the emulator control of the host Docker daemon,
+# so it runs as root. Never use it on a shared host. The default compose.yml has no socket.
+# See ADR 0001.
+services:
+  emulator:
+    user: "0"
+    environment:
+      # Lambda containers join the Compose network so Moto can reach them.
+      MOTO_DOCKER_NETWORK_NAME: kiln-infra-factory_default
+      # lambci-compatible Python 3.12 runtime (MIT, github.com/shogo82148/docker-lambda), pinned by digest.
+      MOTO_DOCKER_LAMBDA_IMAGE: ghcr.io/shogo82148/lambda-python:3.12@sha256:230710cf001242b2cb3b1be025e17a467f70430bc3409977408e4066658020e1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

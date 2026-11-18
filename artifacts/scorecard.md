@@ -6,7 +6,7 @@ Honest status per spec item, updated 2026-11-18. Pass means the named command ra
 |------|------|--------|----------|
 | 0 | Foundations, hook, style checker | Verified | `tests/test_commit_hook.bats` 5 of 5, `tests/test_style_checker.ps1` 8 of 8 |
 | 1 | Toolbox and emulator | Verified | `scripts/tb.ps1 versions` 16 tools, emulator health 200, [ADR 0001](../docs/adr/0001-emulator-choice.md) |
-| 2 | AWS modules | Verified (mock and emulator) | `scripts/test-modules.sh`, dev units applied to Moto |
+| 2 | AWS modules | Verified (mock and emulator) | `scripts/test-modules.sh`, dev units applied to Moto. `scripts/lambda-sqs-e2e.sh` delivered an SQS message to the function (log `artifacts/logs/lambda-sqs-e2e.log`) |
 | 3 | Azure modules | Verified (static and mock only) | validate and mock tests, Checkov, OPA |
 | 4 | GCP modules | Verified (static and mock only) | validate and mock tests, Checkov, OPA |
 | 5 | Secrets | Verified | `tests/test_sops.bats` 3 of 3, gitleaks clean |
@@ -32,7 +32,6 @@ Honest status per spec item, updated 2026-11-18. Pass means the named command ra
 
 ## Not verified, with cause
 
-- Lambda delivery from SQS: Moto stores functions but the emulator no longer has a Docker socket to run them.
 - Drift exit 0: Moto returns policy JSON with spaces, so every plan shows a whitespace-only diff.
 - The explainer video: not produced.
 - Real cloud deployment: never attempted by design.

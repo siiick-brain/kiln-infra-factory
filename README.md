@@ -92,7 +92,7 @@ Rendered from real command output. The full set is in [docs/screenshots.md](docs
 | Azure modules | validate, mock tests, TFLint, Checkov, OPA | Static and mock only. Not deployed |
 | GCP modules | validate, mock tests, TFLint, Checkov, OPA | Static and mock only. Not deployed |
 | CloudFront | validate and mock tests. Moto has no CloudFront | Mock only |
-| Lambda receives SQS messages | Apply to Moto | Not verified end to end |
+| Lambda receives SQS messages | `scripts/lambda-sqs-e2e.sh` with the opt-in `compose.lambda.yml` | Verified on the emulator (2026-11-18): Moto ran the function through the event source mapping, it returned `recordCount` 1 and the queue emptied. Local only, because it needs the Docker socket |
 | Drift exit 0 after remediation | Emulator and the drift workflow | Classifier exit 0 Verified on main. Raw plan exit 0 Not verified (two Moto artifacts) |
 | Terragrunt apply and destroy in stage and prod | `scripts/terragrunt-run-all.sh` on Moto | Verified on the emulator (2026-11-17) |
 | Promotion with real gates | `scripts/promote.ps1` dev to stage | Verified on the emulator (2026-11-18) |
