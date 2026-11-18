@@ -11,7 +11,7 @@ Upstream release tags, repository licence metadata and last-push timestamps were
 | OPA | 1.22.0 | Apache-2.0 | [README](https://github.com/open-policy-agent/opa) and [LICENSE](https://github.com/open-policy-agent/opa/blob/main/LICENSE) | 2026-10-30 13:35 UTC |
 | Conftest | 0.71.1 | Apache-2.0 | [README](https://github.com/open-policy-agent/conftest) and [LICENSE](https://github.com/open-policy-agent/conftest/blob/master/LICENSE) | 2026-10-29 16:41 UTC |
 | actions/checkout | v7.0.1 at `3d3c42e5aac5ba805825da76410c181273ba90b1` | MIT | [README](https://github.com/actions/checkout/tree/v7.0.1) and [LICENSE](https://github.com/actions/checkout/blob/v7.0.1/LICENSE) | 2026-11-16 |
-| Ansible Core | 2.21.5 | GPL-3.0-or-later | [README](https://github.com/ansible/ansible) and [COPYING](https://github.com/ansible/ansible/blob/devel/COPYING) | 2026-10-28 22:38 UTC |
+| Ansible Core | 2.22.0. 2.21.5 does not start on Python 3.15 | GPL-3.0-or-later | [README](https://github.com/ansible/ansible) and [COPYING](https://github.com/ansible/ansible/blob/devel/COPYING) | 2026-11-18 |
 | Ansible Lint | 26.10.1 | GPL-3.0-or-later | [README](https://github.com/ansible/ansible-lint) and [COPYING](https://github.com/ansible/ansible-lint/blob/main/COPYING) | 2026-10-30 09:42 UTC |
 | pytest-testinfra | 10.2.2 | Apache-2.0 | [README](https://github.com/pytest-dev/pytest-testinfra/blob/main/README.rst) and [LICENSE](https://github.com/pytest-dev/pytest-testinfra/blob/main/LICENSE) | 2026-07-20 |
 | SOPS | 3.13.3 | MPL-2.0 | [README](https://github.com/getsops/sops) and [LICENSE](https://github.com/getsops/sops/blob/main/LICENSE) | 2026-10-27 17:22 UTC |
@@ -62,8 +62,7 @@ Each project was read for its README and licence before use. No text or code was
 
 ## Container image references
 
-- Toolbox base: [`python:3.12-slim-trixie@sha256:1148dbb014615300fa7e713b2f94f550c0d1c69780c0805f84f093ceee34dd0b`](https://hub.docker.com/layers/library/python/3.12-slim-trixie/images/sha256-1148dbb014615300fa7e713b2f94f550c0d1c69780c0805f84f093ceee34dd0b). It stays on 3.12 until pycares, a Checkov dependency, publishes Python 3.15 wheels.
-- Moto base: [`python:3.15-slim-trixie@sha256:65a65fc7b30b06cb6df4930fd4650697cb23f4c2698ab81fc87e4b031bc36928`](https://hub.docker.com/layers/library/python/3.15-slim-trixie/images/sha256-65a65fc7b30b06cb6df4930fd4650697cb23f4c2698ab81fc87e4b031bc36928)
+- Toolbox and Moto base: [`python:3.15-slim-trixie@sha256:65a65fc7b30b06cb6df4930fd4650697cb23f4c2698ab81fc87e4b031bc36928`](https://hub.docker.com/layers/library/python/3.15-slim-trixie/images/sha256-65a65fc7b30b06cb6df4930fd4650697cb23f4c2698ab81fc87e4b031bc36928). Checkov 3.4.0 caps pycares below 5, which has no Python 3.15 wheel, so the toolbox build installs gcc, compiles pycares and removes gcc in the same layer.
 - swtpm base: [`debian:trixie-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2`](https://hub.docker.com/layers/library/debian/trixie-slim/images/sha256-a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2)
 - Rocky Linux targets: [`quay.io/rockylinux/rockylinux:10.2@sha256:827d37bc128288ccf160ee318bb3cb92d591164cb217e92f8bc61e3982ae1834`](https://quay.io/repository/rockylinux/rockylinux?tab=tags)
 - kind-runner base: [`docker:29.9.3-cli@sha256:5a7af0dcb0e46c803efe9b45371dd21cb500e5b4453250394ac6f06d49b6e6f1`](https://hub.docker.com/_/docker)

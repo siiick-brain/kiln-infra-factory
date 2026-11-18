@@ -1,4 +1,4 @@
-FROM python:3.12-slim-trixie@sha256:1148dbb014615300fa7e713b2f94f550c0d1c69780c0805f84f093ceee34dd0b
+FROM python:3.15-slim-trixie@sha256:65a65fc7b30b06cb6df4930fd4650697cb23f4c2698ab81fc87e4b031bc36928
 
 ARG DEBIAN_SNAPSHOT=20261029T000000Z
 ARG TERRAFORM_VERSION=1.17.1
@@ -7,7 +7,7 @@ ARG TFLINT_VERSION=0.65.0
 ARG CHECKOV_VERSION=3.4.0
 ARG OPA_VERSION=1.22.0
 ARG CONFTEST_VERSION=0.71.1
-ARG ANSIBLE_VERSION=2.21.5
+ARG ANSIBLE_VERSION=2.22.0
 ARG ANSIBLE_LINT_VERSION=26.10.1
 ARG SOPS_VERSION=3.13.3
 ARG AGE_VERSION=1.3.2
@@ -34,12 +34,15 @@ RUN set -eux; \
     apt-get install -y --no-install-recommends \
       bash ca-certificates curl git jq openssh-client unzip xz-utils \
       tpm2-tools="${TPM2_TOOLS_VERSION}"; \
+    # Checkov caps pycares below 5, which has no Python 3.15 wheel. Compile it, then remove gcc.
+    apt-get install -y --no-install-recommends gcc libc6-dev; \
     python -m venv /opt/toolbox-venv; \
     pip install --no-cache-dir \
       "ansible-core==${ANSIBLE_VERSION}" \
       "ansible-lint==${ANSIBLE_LINT_VERSION}" \
       "pytest-testinfra==10.2.2" \
       "checkov==${CHECKOV_VERSION}"; \
+    apt-get purge -y --auto-remove gcc libc6-dev; \
     rm -rf /var/lib/apt/lists/*
 
 RUN set -eux; \
