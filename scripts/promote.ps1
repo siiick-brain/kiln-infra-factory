@@ -25,15 +25,15 @@ function Get-ModuleVersion {
     }
 
     $content = Get-Content -LiteralPath $path -Raw
-    $matches = [regex]::Matches($content, '(?m)^\s*module_version\s*=\s*"([^"]+)"\s*$')
-    if ($matches.Count -ne 1) {
+    $pinMatches = [regex]::Matches($content, '(?m)^\s*module_version\s*=\s*"([^"]+)"\s*$')
+    if ($pinMatches.Count -ne 1) {
         throw "Expected one module_version pin in $path."
     }
 
     return [pscustomobject]@{
         Path    = $path
         Content = $content
-        Version = $matches[0].Groups[1].Value
+        Version = $pinMatches[0].Groups[1].Value
     }
 }
 
@@ -53,7 +53,8 @@ function Invoke-PromotionGate {
     )
 
     Write-Output "Running promotion gate: $Name"
-    & docker compose -f (Join-Path $repoRoot 'compose.yml') run --rm --no-deps toolbox bash -lc $Command
+    # Not a login shell: /etc/profile resets PATH and hides the toolbox venv (checkov, ansible).
+    & docker compose -f (Join-Path $repoRoot 'compose.yml') run --rm --no-deps toolbox bash -c $Command
     if ($LASTEXITCODE -ne 0) {
         throw "Promotion gate '$Name' failed with exit code $LASTEXITCODE."
     }

@@ -79,6 +79,11 @@ exit /b %PROMOTE_TEST_EXIT%
             throw "Promotion did not run the required gate: $gate"
         }
     }
+    # Regression: a login shell runs /etc/profile, which resets PATH and hides the toolbox venv
+    # (checkov exited 127 in the first real promotion run).
+    if ($commands -match 'bash -l') {
+        throw 'Promotion gates must not run in a login shell.'
+    }
 
     Set-EnvironmentPin -Environment dev -Version '0.2.0'
     Set-EnvironmentPin -Environment stage -Version '0.1.0'
